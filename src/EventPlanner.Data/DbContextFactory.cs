@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace EventPlaner.Data;
+namespace EventPlanner.Data;
 
 /// <summary>
 /// Design-time фабрика, чтобы dotnet-ef мог создать DbContext без запуска WebApi.

@@ -1,7 +1,7 @@
-using EventPlaner.Data.Entities;
+using EventPlanner.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventPlaner.Data;
+namespace EventPlanner.Data;
 
 public class MyDbContext : DbContext
 {

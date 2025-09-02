@@ -1,0 +1,12 @@
+namespace EventPlanner.Application.Abstractions.Repositories;
+
+using EventPlanner.Data.Entities;
+
+public interface ILocationRepository
+{
+    Task<Location?> GetByIdAsync(int id);
+    Task<List<Location>> GetAllAsync();
+    Task AddAsync(Location entity);
+    Task UpdateAsync(Location entity);
+    Task DeleteAsync(int id);
+}

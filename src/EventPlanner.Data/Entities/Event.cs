@@ -1,4 +1,4 @@
-namespace EventPlaner.Data.Entities;
+namespace EventPlanner.Data.Entities;
 
 public class Event : BaseEntity
 {
@@ -9,4 +9,6 @@ public class Event : BaseEntity
     public int LocationId { get; private set; }
     public Location Location { get; private set; } = null!;
     public List<Ticket> Tickets { get; private set; } = new();
+    
+   
 }

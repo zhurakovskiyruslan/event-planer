@@ -1,4 +1,4 @@
-namespace EventPlaner.Data.Entities;
+namespace EventPlanner.Data.Entities;
 
 public class Booking : BaseEntity
 {
