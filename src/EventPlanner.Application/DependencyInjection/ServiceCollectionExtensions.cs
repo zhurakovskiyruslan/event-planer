@@ -9,6 +9,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<ILocationService, LocationService>();
+        services.AddScoped<IEventService, EventService>();
         return services;
     }
+    
 }

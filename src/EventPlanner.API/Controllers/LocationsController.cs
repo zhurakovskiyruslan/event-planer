@@ -1,9 +1,7 @@
 using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
-using EventPlanner.Application.Services;
 using EventPlanner.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
-using EventPlanner.Application.Services;
 
 namespace EventPlanner.API.Controllers;
 
@@ -59,5 +57,12 @@ public class LocationsController : ControllerBase
     {
         var locations = await _service.GetAllAsync();
         return Ok(locations.Select(l => new LocationResponseDto(l.Id, l.Name, l.Address, l.Capacity)));
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id)
+    {
+       await _service.DeleteAsync(id);
+       return NoContent();  
     }
 }

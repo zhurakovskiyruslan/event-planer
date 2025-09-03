@@ -7,9 +7,6 @@ public class Booking : BaseEntity
     public int TicketId { get; private set; }
     public Ticket Ticket { get; private set; } = null!;
     public string Status { get; private set; } = "Active"; // Active / Cancelled
-
-    private Booking() { }
-
     public Booking(int userId, int ticketId)
     {
         UserId = userId;

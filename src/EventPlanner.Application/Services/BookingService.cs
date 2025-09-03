@@ -1,9 +1,10 @@
 using EventPlanner.Application.Abstractions.Repositories;
+using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Data.Entities;
 
 namespace EventPlanner.Application.Services;
 
-public class BookingService
+public class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepo;
     private readonly IUserRepository _userRepo;
