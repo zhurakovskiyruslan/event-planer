@@ -1,8 +1,6 @@
 using EventPlanner.Data;
 using EventPlanner.Data.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace EventPlanner.API.Controllers
 {

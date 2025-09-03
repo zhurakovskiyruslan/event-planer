@@ -2,19 +2,19 @@ namespace EventPlanner.Data.Entities;
 
 public class Ticket : BaseEntity
 { 
-    public string Type { get; private set; } = "Standard"; // Standard / VIP
-    public decimal Price { get; private set; }
-    public int EventId { get; private set; }
-    public Event Event { get; private set; } = null!;
+    public string Type { get; set; } = "Standard"; // Standard / VIP
+    public double Price { get; set; }
+    public int EventId { get; set; }
+    public Event Event { get;  set; } = null!;
     public List<Booking> Bookings { get; private set; } = new();
 
-    private Ticket() { }
-
-    public Ticket(string type, decimal price, int eventId)
+    public void Update(string type, double price, int eventId)
     {
-        if (string.IsNullOrWhiteSpace(type)) throw new ArgumentException("Type required");
-        if (price < 0) throw new ArgumentException("Price must be >= 0");
-
+        if (type != "Standard" && type!= "VIP")
+            throw new ArgumentException("Invalid ticket type");
+        
+        if (Price <= 0)
+            throw new ArgumentException("Ticket price must be greater than zero");
         Type = type;
         Price = price;
         EventId = eventId;

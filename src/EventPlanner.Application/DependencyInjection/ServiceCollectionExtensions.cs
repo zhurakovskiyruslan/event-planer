@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ILocationService, LocationService>();
         services.AddScoped<IEventService, EventService>();
+        services.AddScoped<ITicketService, TicketService>();
         return services;
     }
     
