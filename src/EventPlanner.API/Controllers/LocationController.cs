@@ -7,11 +7,11 @@ namespace EventPlanner.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class LocationsController : ControllerBase
+public class LocationController : ControllerBase
 {
     private readonly ILocationService _service;
 
-    public LocationsController(ILocationService service)
+    public LocationController(ILocationService service)
     {
         _service = service;
     }

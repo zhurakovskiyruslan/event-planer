@@ -2,18 +2,17 @@ namespace EventPlanner.Data.Entities;
 
 public class User : BaseEntity
 {
-    public string Name { get; private set; } = string.Empty;
-    public string Email { get; private set; } = string.Empty;
-    public List<Booking> Bookings { get; private set; } = new();
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public List<Booking> Bookings { get; set; } = new();
 
-    private User() { }
-
-    public User(string name, string email)
+    public void Update(string name, string email)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name required");
-        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email required");
-
-        Name = name.Trim();
-        Email = email.Trim().ToLowerInvariant();
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentException("Name cannot be empty");
+        if (string.IsNullOrEmpty(email))
+            throw new ArgumentException("Email cannot be empty");
+        Name = name;
+        Email = email;
     }
 }

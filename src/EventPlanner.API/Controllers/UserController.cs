@@ -1,6 +1,8 @@
-using EventPlanner.Data;
+using EventPlanner.API.Contracts;
+using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace EventPlanner.API.Controllers
 {
@@ -8,41 +10,68 @@ namespace EventPlanner.API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly MyDbContext _dbContext;
-        public UserController(MyDbContext dbContext)
+        private readonly IUserService _userService;
+        public UserController(IUserService userService)
         {
-            _dbContext = dbContext; 
+            _userService = userService; 
         }
-        // GET: api/<UserController>
-        [HttpGet]
-        public IEnumerable<User> Get()
-        {
-            return   _dbContext.Users.ToList();
-        }
+      
 
         // GET api/<UserController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<UserResponseDto>> GetById(int id)
         {
-            return "value";
+            var user = await _userService.GetById(id);
+            if (user is null)
+                return NotFound();
+            return Ok(new UserResponseDto(user.Id, user.Name, user.Email));
         }
 
+        // GET: api/<UserController>
+        [HttpGet("by-email/{email}", Name = "GetUserByEmail")]
+        public async Task<ActionResult<UserResponseDto>> GetByEmailAsync(string email)
+        {
+            var user = await _userService.GetByEmail(email);
+            if (user is null)
+                return NotFound();
+            return Ok(new UserResponseDto(user.Id, user.Name, user.Email));
+        }
+        
         // POST api/<UserController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<UserResponseDto>> Create([FromBody] CreateUserDto dto)
         {
-        }
+            var user = new User()
+            {
+                Name = dto.Name,
+                Email = dto.Email
+            };
+            var result = await _userService.CreateAsync(user);
 
+            var response = new UserResponseDto(result.Id, result.Name, result.Email);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
+        }
         // PUT api/<UserController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult> Update(int id, [FromBody] UpdateUserDto dto)
         {
+            var user = await _userService.GetById(id);
+            if (user is null)
+                return NotFound();
+            
+            user.Update(dto.Name, dto.Email);
+            await _userService.UpdateAsync(user);
+            
+            return NoContent();
         }
+       
 
         // DELETE api/<UserController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
+            await _userService.DeleteAsync(id);
+            return NoContent();
         }
     }
 }
