@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IBookingService, BookingService>();
         return services;
     }
     

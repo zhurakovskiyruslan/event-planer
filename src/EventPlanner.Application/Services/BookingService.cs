@@ -20,20 +20,9 @@ public class BookingService : IBookingService
         _ticketRepo = ticketRepo;
     }
 
-    /// <summary>Создать бронь: проверяем пользователя, билет и запрет на дубль.</summary>
-    public async Task<Booking> CreateAsync(int userId, int ticketId)
+    /// <summary>Создать бронь.</summary>
+    public async Task<Booking> CreateAsync(Booking booking)
     {
-        var user = await _userRepo.GetByIdAsync(userId)
-                   ?? throw new InvalidOperationException("Пользователь не найден");
-
-        var ticket = await _ticketRepo.GetByIdAsync(ticketId)
-                     ?? throw new InvalidOperationException("Билет не найден");
-
-        var duplicate = await _bookingRepo.GetByUserAndTicketAsync(userId, ticketId);
-        if (duplicate != null)
-            throw new InvalidOperationException("У этого пользователя уже есть бронь на этот билет");
-
-        var booking = new Booking(user.Id, ticket.Id);
         await _bookingRepo.AddAsync(booking);
         return booking;
     }
@@ -50,7 +39,18 @@ public class BookingService : IBookingService
         booking.Cancel(); // доменная логика внутри сущности
         await _bookingRepo.UpdateAsync(booking);
     }
+    
+    public Task DeleteAsync(int id) =>
+        _bookingRepo.DeleteAsync(id);
 
-    public Task<Booking?> GetByIdAsync(int id) => _bookingRepo.GetByIdAsync(id);
-    public Task<List<Booking>> GetByUserAsync(int userId) => _bookingRepo.GetByUserIdAsync(userId);
+    public Task<Booking?> GetById(int id) => 
+        _bookingRepo.GetByIdAsync(id);
+    public Task<List<Booking>> GetByUserId(int id) => 
+        _bookingRepo.GetByUserIdAsync(id);
+    public Task<List<Booking>> GetActiveBooking() => 
+        _bookingRepo.GetActiveBookingsAsync();
+    public Task<List<Booking>> GetByEventId(int eventId) => 
+        _bookingRepo.GetByEventIdAsync(eventId);
+    public Task<Booking?> GetByUserAndTickets(int userId, int ticketId) => 
+        _bookingRepo.GetByUserAndTicketAsync(userId, ticketId);
 }

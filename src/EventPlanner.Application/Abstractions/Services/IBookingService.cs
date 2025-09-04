@@ -3,8 +3,12 @@ namespace EventPlanner.Application.Abstractions.Services;
 
 public interface IBookingService
 { 
-    Task<Booking?> GetByIdAsync(int id);
-    Task<Booking> CreateAsync(int userId, int ticketId);
+    Task<Booking> GetById(int id);
+    Task <List<Booking>> GetByUserId(int userId);
+    Task<List<Booking>> GetByEventId(int eventId);
+    Task <List<Booking>> GetActiveBooking();
+    Task<Booking?> GetByUserAndTickets(int userId, int ticketId);
+    Task<Booking> CreateAsync(Booking booking);
+    Task DeleteAsync(int bookingId);
     Task CancelAsync(int bookingId, int? actorUserId = null);
-    Task<List<Booking>> GetByUserAsync(int userId);
 }

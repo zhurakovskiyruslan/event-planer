@@ -2,19 +2,12 @@ namespace EventPlanner.Data.Entities;
 
 public class Booking : BaseEntity
 {
-    public int UserId { get; private set; }
-    public User User { get; private set; } = null!;
-    public int TicketId { get; private set; }
-    public Ticket Ticket { get; private set; } = null!;
-    public string Status { get; private set; } = "Active"; // Active / Cancelled
-    public Booking(int userId, int ticketId)
-    {
-        UserId = userId;
-        TicketId = ticketId;
-        CreatedAt = DateTime.UtcNow;
-        Status = "Active";
-    }
-
+    public int UserId { get; set; }
+    public User User { get; set; } = null!;
+    public int TicketId { get; set; }
+    public Ticket Ticket { get; set; } = null!;
+    public string Status { get; set; } = "Active"; // Active / Cancelled
+    
     public void Cancel()
     {
         if (Status == "Cancelled") throw new InvalidOperationException("Already cancelled");
