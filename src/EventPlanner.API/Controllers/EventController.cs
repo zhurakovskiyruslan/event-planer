@@ -37,8 +37,6 @@ namespace EventPlanner.API.Controllers
         public async Task<ActionResult<EventResponseDto>> GetById(int id)
         {
             var events = await _eventService.GetById(id);
-            if (events is null)
-                return NotFound();
             return Ok(new EventResponseDto(events.Id, events.Title, events.Description, events.StartAtUtc, events.Capacity, events.LocationId));
         }
 
@@ -58,14 +56,20 @@ namespace EventPlanner.API.Controllers
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] UpdateEventDto dto)
-        {
-            var events = await _eventService.GetById(id);
-            if (events is null) return NotFound();
+        {var entity = new Event()
+            {
+                Id = id,
+                Title = dto.Title,
+                Description = dto.Description,
+                StartAtUtc = dto.StartAtUtc,
+                Capacity =  dto.Capacity,
+                LocationId = dto.LocationId
+            }; 
+            await _eventService.UpdateAsync(entity);
             
-            events.Update(dto.Title, dto.Description, dto.StartAtUtc, dto.Capacity, dto.LocationId);
-            await _eventService.UpdateAsync(events);
-            
-            return NoContent();
+            var response = new EventResponseDto(entity.Id, entity.Title, 
+                entity.Description, entity.StartAtUtc, entity.Capacity, entity.LocationId);
+            return Ok(response);
         }
     }
 }

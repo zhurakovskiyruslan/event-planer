@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using EventPlanner.Application.Abstractions.Repositories;
 using EventPlanner.Data;
 using Microsoft.EntityFrameworkCore;
@@ -42,8 +43,17 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
 
         public async Task UpdateAsync(EventEntity entity)
         {
-            _context.Events.Update(entity);
-            await _context.SaveChangesAsync();
+            var entityToUpdate = await _context.Events.FindAsync(entity.Id);
+            if (entityToUpdate != null)
+            {
+                entityToUpdate.Title = entity.Title;
+                entityToUpdate.Description = entity.Description;
+                entityToUpdate.StartAtUtc = entity.StartAtUtc;
+                entityToUpdate.Capacity = entity.Capacity;
+                entityToUpdate.Location = entity.Location;
+                _context.Events.Update(entityToUpdate);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(int id)
