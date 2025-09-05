@@ -10,6 +10,10 @@ public class TicketRepository : ITicketRepository
     private readonly MyDbContext _context;
 
     public TicketRepository(MyDbContext context) => _context = context;
+    
+    public async Task<bool> ExistsAsync(int id)
+        => await _context.Tickets.AnyAsync(t => t.Id == id);
+
 
     public async Task<Ticket?> GetByIdAsync(int id)
     {

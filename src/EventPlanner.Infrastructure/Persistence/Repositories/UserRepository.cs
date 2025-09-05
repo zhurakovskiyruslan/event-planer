@@ -10,6 +10,10 @@ public class UserRepository : IUserRepository
     private readonly MyDbContext _context;
 
     public UserRepository(MyDbContext context) => _context = context;
+    
+    public async Task<bool> ExistsAsync(int id)
+        => await _context.Users.AnyAsync(u => u.Id == id);
+
 
     public async Task<User?> GetByIdAsync(int id)
     {

@@ -10,16 +10,10 @@ namespace EventPlanner.API.Controllers;
 public class BookingController : ControllerBase
 {
     private readonly IBookingService _bookingService;
-    private readonly IUserService _userService;
-    private readonly IEventService _eventService;
-  
 
-    public BookingController(IBookingService bookingService, IUserService userService, IEventService eventService)
+    public BookingController(IBookingService bookingService)
     {
         _bookingService = bookingService;
-        _userService = userService;
-        _eventService = eventService;
-        
     }
 
     // Создать бронь
@@ -29,32 +23,23 @@ public class BookingController : ControllerBase
         var booking = new Booking()
         {
             UserId = dto.UserId,
-            TicketId = dto.TicketId,
+            TicketId = dto.TicketId
         };
         var result = await _bookingService.CreateAsync(booking);
-        var user = await _userService.GetById(booking.UserId);
-        
-        
-        var entity = await _eventService.GetById(booking.TicketId);
-        var response = new BookingResponseDto(booking.Id,
-            booking.UserId, user.Name, booking.TicketId, 
-            booking.Status);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
+        var response = await _bookingService.GetById(result.Id);
+        var responseDto = new BookingResponseDto(response.Id, response.UserId, response.User.Name, 
+            response.TicketId, response.Status.ToString());
+       
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, responseDto);
     }
 
     // Отменить бронь
-    [HttpDelete("cancelBooking{id}")]
+    [HttpDelete("cancel{id}")]
     public async Task<IActionResult> Cancel(int id, int? actorUserId = null)
     {
-        try
-        {
-            await _bookingService.CancelAsync(id, actorUserId);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        
+        await _bookingService.CancelAsync(id, actorUserId);
+        return NoContent();
     }
     
     [HttpDelete("deleteBooking{id}")]
@@ -63,17 +48,14 @@ public class BookingController : ControllerBase
        await _bookingService.DeleteAsync(id);
        return NoContent();
     }
-    
     // Получить бронь по айди
     [HttpGet("{id}")]
 
     public async Task<ActionResult<BookingResponseDto>> GetById(int id)
     {
         var bookings = await _bookingService.GetById(id);
-        if (bookings is null)
-            return NotFound();
         BookingResponseDto dto = new BookingResponseDto(bookings.Id, bookings.UserId, bookings.User.Name,
-            bookings.TicketId,  bookings.Status);
+            bookings.TicketId,  bookings.Status.ToString());
         return Ok(dto);
     }
 
@@ -82,41 +64,32 @@ public class BookingController : ControllerBase
     public async Task<ActionResult<BookingResponseDto>> GetByUserId(int id)
     {
         var bookings = await _bookingService.GetByUserId(id);
-        if (bookings is null)
-            return NotFound();
         return Ok(bookings.Select(booking => new BookingResponseDto(booking.Id, 
-            booking.UserId, booking.User.Name, booking.TicketId, booking.Status)));
+            booking.UserId, booking.User.Name, booking.TicketId, booking.Status.ToString())));
     }
     
     [HttpGet("byIvent/{id}")]
     public async Task<ActionResult<BookingResponseDto>> GetByEventId(int id)
     {
         var bookings = await _bookingService.GetByEventId(id);
-        if (bookings is null)
-            return NotFound();
         return Ok(bookings.Select(booking => new BookingResponseDto(booking.Id, 
-            booking.UserId, booking.User.Name, booking.TicketId, booking.Status)));
+            booking.UserId, booking.User.Name, booking.TicketId, booking.Status.ToString())));
     }
     
     [HttpGet("allActiveBookings")]
     public async Task<ActionResult<BookingResponseDto>> GetActiveBooking()
     {
         var bookings = await _bookingService.GetActiveBooking();
-        if (bookings is null)
-            return NotFound();
         return Ok(bookings.Select(booking => new BookingResponseDto(booking.Id, 
-            booking.UserId, booking.User.Name, booking.TicketId, booking.Status)));
+            booking.UserId, booking.User.Name, booking.TicketId, booking.Status.ToString())));
     }
     
     [HttpGet("byUserAndTickets/{userId}/{ticketId}")]
     public async Task<ActionResult<BookingResponseDto>> GetByUserAndTickets(int userId, int ticketId)
     {
         var bookings = await _bookingService.GetByUserAndTickets(userId, ticketId);
-        if (bookings is null)
-            return NotFound();
-        var user = await _userService.GetById(userId);
-         return Ok(new BookingResponseDto(bookings.Id, bookings.UserId, user.Name,
-            bookings.TicketId,  bookings.Status));
+        return Ok(new BookingResponseDto(bookings.Id, bookings.UserId, bookings.User.Name,
+            bookings.TicketId,  bookings.Status.ToString()));
     }
     
 }

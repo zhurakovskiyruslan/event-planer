@@ -35,7 +35,8 @@ namespace EventPlaner.Data.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("TicketId")
                         .HasColumnType("integer");
@@ -49,7 +50,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Event", b =>
@@ -83,7 +84,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Location", b =>
@@ -110,7 +111,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Ticket", b =>
@@ -127,18 +128,19 @@ namespace EventPlaner.Data.Migrations
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.User", b =>
@@ -162,7 +164,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Booking", b =>

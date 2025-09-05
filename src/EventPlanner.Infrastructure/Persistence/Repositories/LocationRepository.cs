@@ -12,6 +12,9 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
         private readonly MyDbContext _context;
 
         public LocationRepository(MyDbContext context) => _context = context;
+        
+        public async Task<bool> ExistsAsync(int id)
+            => await _context.Locations.AnyAsync(l => l.Id == id);
 
         public async Task<Location?> GetByIdAsync(int id)
         {

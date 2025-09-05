@@ -2,6 +2,7 @@ using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
+using TicketType = EventPlanner.Data.Enums.TicketType;
 
 namespace EventPlanner.API.Controllers
 {
@@ -22,7 +23,7 @@ namespace EventPlanner.API.Controllers
             var ticket = await _ticketService.GetById(id);
             if (ticket is null)
                 return NotFound();
-            return Ok(new TicketResponseDto(ticket.Id, ticket.Type, ticket.Price, ticket.EventId));
+            return Ok(new TicketResponseDto(ticket.Id, ticket.Type.ToString(), ticket.Price, ticket.EventId));
         }
 
         [HttpPost]
@@ -30,13 +31,13 @@ namespace EventPlanner.API.Controllers
         {
             var ticket = new Ticket()
             {
-                Type = dto.Type,
+                Type = (TicketType)(int)dto.Type,
                 Price = dto.Price,
                 EventId = dto.EventId
             };
             var result = await _ticketService.CreateAsync(ticket);
 
-            var response = new TicketResponseDto(result.Id, result.Type, result.Price, result.EventId);
+            var response = new TicketResponseDto(result.Id, result.Type.ToString(), result.Price, result.EventId);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
         }
 

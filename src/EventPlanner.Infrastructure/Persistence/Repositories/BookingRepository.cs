@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using EventPlanner.Application.Abstractions.Repositories;
 using EventPlanner.Data;              // MyDbContext
-using EventPlanner.Data.Entities;     // Booking, Ticket, Event, User
+using EventPlanner.Data.Entities;
+using EventPlanner.Data.Enums; // Booking, Ticket, Event, User
 
 namespace EventPlanner.Infrastructure.Persistence.Repositories
 {
@@ -13,6 +14,9 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
         private readonly MyDbContext _context;
 
         public BookingRepository(MyDbContext context) => _context = context;
+        
+        public async Task<bool> ExistsAsync(int id)
+            => await _context.Bookings.AnyAsync(b => b.Id == id);
 
         public async Task<Booking?> GetByIdAsync(int id) =>
             await _context.Bookings
@@ -44,14 +48,14 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                 .Include(b => b.User)
                 .Include(b => b.Ticket)
                     .ThenInclude(t => t.Event)
-                .Where(b => b.Status == "Active")
+                .Where(b => b.Status == BookingStatus.Active)
                 .ToListAsync();
 
         public Task<Booking?> GetByUserAndTicketAsync(int userId, int ticketId)
             => _context.Bookings
+                .Include(b => b.User)
                 .FirstOrDefaultAsync(b => b.UserId == userId
-                                          && b.TicketId == ticketId
-                                          && b.Status == "Active");
+                                          && b.TicketId == ticketId);
         public async Task AddAsync(Booking entity)
         {
             _context.Bookings.Add(entity);
@@ -78,7 +82,7 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
             var booking = await _context.Bookings.FindAsync(id);
             if (booking == null) return;
 
-            booking.Cancel();
+            booking.Status = BookingStatus.Cancelled;
             await _context.SaveChangesAsync();
         }
     }

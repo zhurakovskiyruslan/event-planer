@@ -7,14 +7,21 @@ namespace EventPlanner.Application.Services;
 public class EventService : IEventService
 {
     private readonly IEventRepository _eventRepository;
+    private readonly ILocationRepository _locationRepository;
 
-    public EventService(IEventRepository eventRepository)
+    public EventService(IEventRepository eventRepository,  ILocationRepository locationRepository)
     {
         _eventRepository = eventRepository;
+        _locationRepository = locationRepository;
     }
 
     public async Task <Event> CreateAsync(Event entity)
     {
+        if (entity.LocationId == null)
+            throw new Exception("LocationId is null");
+        var locationExist = await _locationRepository.ExistsAsync(entity.LocationId);
+        if (!locationExist)
+            throw new InvalidOperationException($"location with id {entity.LocationId} not found");
         await _eventRepository.AddAsync(entity);
         return entity;
     }

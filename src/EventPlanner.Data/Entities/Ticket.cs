@@ -1,8 +1,10 @@
+using EventPlanner.Data.Enums;
+
 namespace EventPlanner.Data.Entities;
 
 public class Ticket : BaseEntity
 { 
-    public string Type { get; set; } = "Standard"; // Standard / VIP
+    public TicketType Type { get; set; }  // Standard / VIP
     public double Price { get; set; }
     public int EventId { get; set; }
     public Event Event { get;  set; } = null!;
@@ -10,12 +12,19 @@ public class Ticket : BaseEntity
 
     public void Update(string type, double price, int eventId)
     {
-        if (type != "Standard" && type!= "VIP")
-            throw new ArgumentException("Invalid ticket type");
-        
         if (Price <= 0)
             throw new ArgumentException("Ticket price must be greater than zero");
-        Type = type;
+        switch (type)
+        {
+            case "Standard":
+                Type = TicketType.Standard;
+                break;
+            case "VIP":
+                Type = TicketType.VIP;
+                break;
+            default: 
+                throw new ArgumentException("Ticket type must be one of: Standard, VIP");
+        }
         Price = price;
         EventId = eventId;
     }

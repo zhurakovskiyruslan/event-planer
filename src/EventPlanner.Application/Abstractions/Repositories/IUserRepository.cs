@@ -4,6 +4,7 @@ namespace EventPlanner.Application.Abstractions.Repositories;
 
 public interface IUserRepository
 {
+    Task<bool> ExistsAsync(int id);
     Task<User?> GetByIdAsync(int id);
     Task<User?> GetByEmailAsync(string email);
     Task AddAsync(User entity);

@@ -10,6 +10,10 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
         private readonly MyDbContext _context;
 
         public EventRepository(MyDbContext context) => _context = context;
+        
+        public async Task<bool> ExistsAsync(int id)
+            => await _context.Events.AnyAsync(e => e.Id == id);
+
 
         public async Task<EventEntity?> GetByIdAsync(int id) =>
             await _context.Events
