@@ -26,7 +26,6 @@ public class LocationController : ControllerBase
             Capacity = dto.Capacity
         };
         var result = await _service.CreateAsync(location);
-
         var response = new LocationResponseDto(location.Id, location.Name, location.Address, location.Capacity);
         return CreatedAtAction(nameof(GetById), new { id = location.Id }, response);
     }
@@ -35,8 +34,6 @@ public class LocationController : ControllerBase
     public async Task<ActionResult<LocationResponseDto>> GetById(int id)
     {
         var loc = await _service.GetByIdAsync(id);
-        if (loc is null) return NotFound();
-
         return Ok(new LocationResponseDto(loc.Id, loc.Name, loc.Address, loc.Capacity));
     }
 

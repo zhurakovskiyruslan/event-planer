@@ -22,8 +22,6 @@ namespace EventPlanner.API.Controllers
         public async Task<ActionResult<UserResponseDto>> GetById(int id)
         {
             var user = await _userService.GetById(id);
-            if (user is null)
-                return NotFound();
             return Ok(new UserResponseDto(user.Id, user.Name, user.Email));
         }
 
@@ -32,8 +30,6 @@ namespace EventPlanner.API.Controllers
         public async Task<ActionResult<UserResponseDto>> GetByEmailAsync(string email)
         {
             var user = await _userService.GetByEmail(email);
-            if (user is null)
-                return NotFound();
             return Ok(new UserResponseDto(user.Id, user.Name, user.Email));
         }
         
@@ -47,7 +43,6 @@ namespace EventPlanner.API.Controllers
                 Email = dto.Email
             };
             var result = await _userService.CreateAsync(user);
-
             var response = new UserResponseDto(result.Id, result.Name, result.Email);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
         }
@@ -55,14 +50,15 @@ namespace EventPlanner.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] UpdateUserDto dto)
         {
-            var user = await _userService.GetById(id);
-            if (user is null)
-                return NotFound();
-            
-            user.Update(dto.Name, dto.Email);
+            var user = new User()
+            {
+                Id = id,
+                Name = dto.Name,
+                Email = dto.Email
+            };
             await _userService.UpdateAsync(user);
-            
-            return NoContent();
+            var response = new UserResponseDto(user.Id, user.Name, user.Email);
+            return Ok(response);
         }
        
 

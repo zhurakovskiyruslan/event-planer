@@ -40,8 +40,15 @@ public class UserRepository : IUserRepository
 
     public async Task UpdateAsync(User entity)
     {
-        _context.Users.Update(entity);
-        await _context.SaveChangesAsync();
+        var userToUpdate = await _context.Users.FindAsync(entity.Id);
+        if (userToUpdate != null)
+        {
+            userToUpdate.Name = entity.Name;
+            userToUpdate.Email = entity.Email;
+            _context.Users.Update(userToUpdate);
+            await _context.SaveChangesAsync();
+        }
+       
     }
 
     public async Task DeleteAsync(int id)

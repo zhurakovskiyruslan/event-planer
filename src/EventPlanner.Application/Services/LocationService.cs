@@ -18,7 +18,6 @@ public class LocationService : ILocationService
     /// </summary>
     public async Task<Location> CreateAsync(Location location)
     {
-       
         if(location is null)
             throw new ValidationException("Location is required");
         if(string.IsNullOrWhiteSpace(location.Name))
@@ -49,21 +48,25 @@ public class LocationService : ILocationService
     /// а сервис только сохраняет изменения.
     /// </summary>
     public async Task UpdateAsync(Location location)
-    {
-        var locationExists = await _locationRepo.GetByIdAsync(location.Id)??
-                             throw new NotFoundException($"location with id {location.Id} not found");
-       if (location is null)
+    { 
+        if (location is null)
             throw new ValidationException("Location is required");
-       if (string.IsNullOrWhiteSpace(location.Name))
+        var locationExists = await _locationRepo.GetByIdAsync(location.Id)??
+                           throw new NotFoundException($"location with id {location.Id} not found");
+        if (string.IsNullOrWhiteSpace(location.Name))
            throw new ValidationException("Location name is required");
-       if (string.IsNullOrWhiteSpace(location.Address))
+        if (string.IsNullOrWhiteSpace(location.Address))
            throw new ValidationException("Location address is required");
-       if (location.Capacity <= 0)
+        if (location.Capacity <= 0)
            throw new ValidationException("Location capacity must be greater than 0");
-       await _locationRepo.UpdateAsync(location);
+        await _locationRepo.UpdateAsync(location);
     }
 
     /// <summary>Удалить локацию по Id</summary>
-    public Task DeleteAsync(int id) =>
-        _locationRepo.DeleteAsync(id);
+    public async Task DeleteAsync(int id)
+    {
+        var locationExist = await _locationRepo.GetByIdAsync(id)??
+                            throw new NotFoundException($"location with id {id} not found");
+        await _locationRepo.DeleteAsync(id);
+    }
 }

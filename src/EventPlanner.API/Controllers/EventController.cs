@@ -28,7 +28,6 @@ namespace EventPlanner.API.Controllers
                 LocationId = dto.LocationId
             };
             var result = await _eventService.CreateAsync(entity);
-            
             var response = new EventResponseDto(entity.Id, entity.Title, entity.Description, entity.StartAtUtc, entity.Capacity, entity.LocationId);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
         }

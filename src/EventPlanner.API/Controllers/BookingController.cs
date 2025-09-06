@@ -29,7 +29,6 @@ public class BookingController : ControllerBase
         var response = await _bookingService.GetById(result.Id);
         var responseDto = new BookingResponseDto(response.Id, response.UserId, response.User.Name, 
             response.TicketId, response.Status.ToString());
-       
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, responseDto);
     }
 
@@ -37,7 +36,6 @@ public class BookingController : ControllerBase
     [HttpDelete("cancel/{id}")]
     public async Task<IActionResult> Cancel(int id, int? actorUserId = null)
     {
-        
         await _bookingService.CancelAsync(id, actorUserId);
         return NoContent();
     }
