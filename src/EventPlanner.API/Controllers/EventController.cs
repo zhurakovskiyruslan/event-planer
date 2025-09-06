@@ -67,7 +67,6 @@ namespace EventPlanner.API.Controllers
                 LocationId = dto.LocationId
             }; 
             await _eventService.UpdateAsync(entity);
-            
             var response = new EventResponseDto(entity.Id, entity.Title, 
                 entity.Description, entity.StartAtUtc, entity.Capacity, entity.LocationId);
             return Ok(response);

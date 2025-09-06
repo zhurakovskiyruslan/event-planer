@@ -72,7 +72,6 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
         {
             var booking = await _context.Bookings.FindAsync(id);
             if (booking == null) return;
-
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
         }

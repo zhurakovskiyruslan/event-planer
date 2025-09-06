@@ -47,7 +47,7 @@ public class EventService : IEventService
     
     public async Task UpdateAsync(Event entity)
     {
-        if (entity is null) throw new NotFoundException("Event not found");
+        if (entity is null) throw new ValidationException("Event is required");
         if (entity.Title.Length == 0 )
             throw new ValidationException("Title is required");
         if (entity.Description is null || entity.Description.Length == 0)

@@ -43,13 +43,17 @@ public class LocationController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> Update(int id, [FromBody] UpdateLocationDto dto)
     {
-        var loc = await _service.GetByIdAsync(id);
-        if (loc is null) return NotFound();
-
-        loc.Update(dto.Name, dto.Address, dto.Capacity); // метод Update в сущности
-        await _service.UpdateAsync(loc);
-
-        return NoContent();
+        var location = new Location()
+        {
+            Id = id,
+            Name = dto.Name,
+            Address = dto.Address,
+            Capacity = dto.Capacity
+        };
+        await _service.UpdateAsync(location);
+        var response = new LocationResponseDto(location.Id, location.Name, 
+            location.Address, location.Capacity);
+        return Ok(response);
     }
 
     [HttpGet]

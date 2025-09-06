@@ -60,7 +60,6 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
         {
             var entity = await _context.Events.FindAsync(id);
             if (entity is null) return;
-
             _context.Events.Remove(entity);
             await _context.SaveChangesAsync();
         }

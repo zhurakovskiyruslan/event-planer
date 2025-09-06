@@ -18,8 +18,6 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
 
         public async Task<Location?> GetByIdAsync(int id)
         {
-            // Если в Location есть навигация на события (Events),
-            // можно добавить Include(l => l.Events)
             return await _context.Locations
                 .AsNoTracking()
                 .FirstOrDefaultAsync(l => l.Id == id);
@@ -40,18 +38,22 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
 
         public async Task UpdateAsync(Location entity)
         {
-            // Если entity не отслеживается — Attach + Modified
-            _context.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
+            var entityToUpdate = await _context.Locations.FindAsync(entity.Id);
+            if (entityToUpdate != null)
+            {
+                entityToUpdate.Name = entity.Name;
+                entityToUpdate.Address = entity.Address;
+                entityToUpdate.Capacity = entity.Capacity;
 
-            await _context.SaveChangesAsync();
+                _context.Locations.Update(entityToUpdate);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(int id)
         {
             var existing = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id);
             if (existing is null) return;
-
             _context.Locations.Remove(existing);
             await _context.SaveChangesAsync();
         }
