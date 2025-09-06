@@ -56,7 +56,8 @@ namespace EventPlanner.API.Controllers
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] UpdateEventDto dto)
-        {var entity = new Event()
+        {
+            var entity = new Event()
             {
                 Id = id,
                 Title = dto.Title,

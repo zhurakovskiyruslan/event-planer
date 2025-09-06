@@ -1,8 +1,10 @@
+using EventPlanner.Data.Enums;
+
 namespace EventPlanner.API.Contracts;
 
 public record TicketResponseDto(
     int Id,
-    string Type,
+    TicketType Type,
     double Price,
     int EventId
     );

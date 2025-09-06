@@ -41,8 +41,15 @@ public class TicketRepository : ITicketRepository
 
     public async Task UpdateAsync(Ticket entity)
     {
-        _context.Tickets.Update(entity);
-        await _context.SaveChangesAsync();
+        var ticketToUpdate = await _context.Tickets.FindAsync(entity.Id);
+        if (ticketToUpdate != null)
+        {
+            ticketToUpdate.Type = entity.Type;
+            ticketToUpdate.Price = entity.Price;
+            ticketToUpdate.EventId = entity.EventId;
+            _context.Tickets.Update(ticketToUpdate);
+            await _context.SaveChangesAsync();
+        }
     }
 
     public async Task DeleteAsync(int id)

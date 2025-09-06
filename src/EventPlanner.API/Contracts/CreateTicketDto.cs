@@ -1,7 +1,9 @@
+
+
 namespace EventPlanner.API.Contracts;
 
 public record CreateTicketDto(
-    TicketType Type,
+    string Type,
     double Price,
     int EventId
     );

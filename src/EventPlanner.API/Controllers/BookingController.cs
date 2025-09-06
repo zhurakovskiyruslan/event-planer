@@ -34,7 +34,7 @@ public class BookingController : ControllerBase
     }
 
     // Отменить бронь
-    [HttpDelete("cancel{id}")]
+    [HttpDelete("cancel/{id}")]
     public async Task<IActionResult> Cancel(int id, int? actorUserId = null)
     {
         
@@ -42,7 +42,7 @@ public class BookingController : ControllerBase
         return NoContent();
     }
     
-    [HttpDelete("deleteBooking{id}")]
+    [HttpDelete("deleteBooking/{id}")]
     public async Task<ActionResult> Delete(int id)
     {
        await _bookingService.DeleteAsync(id);

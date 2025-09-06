@@ -63,12 +63,12 @@ public class BookingService : IBookingService
         await _bookingRepo.DeleteAsync(id);
     }
 
-    public async Task<Booking?> GetById(int id)
+    public async Task<Booking> GetById(int id)
     {
         var booking = await _bookingRepo.GetByIdAsync(id);
         if(booking is null)
             throw new NotFoundException($"Booking with id {id} not found");
-        return await _bookingRepo.GetByIdAsync(id);
+        return booking;
     }
 
     public async Task<List<Booking>> GetByUserId(int id)
