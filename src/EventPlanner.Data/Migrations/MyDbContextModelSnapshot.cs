@@ -50,7 +50,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Bookings", (string)null);
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Event", b =>
@@ -84,7 +84,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Location", b =>
@@ -111,7 +111,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Ticket", b =>
@@ -140,7 +140,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.User", b =>
@@ -164,7 +164,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Booking", b =>
