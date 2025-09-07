@@ -37,7 +37,7 @@ public class LocationController : ControllerBase
         return Ok(new LocationResponseDto(loc.Id, loc.Name, loc.Address, loc.Capacity));
     }
 
-    [HttpPut("put/{id}")]
+    [HttpPut("{id}")]
     public async Task<ActionResult> Update(int id, [FromBody] UpdateLocationDto dto)
     {
         var location = new Location()
