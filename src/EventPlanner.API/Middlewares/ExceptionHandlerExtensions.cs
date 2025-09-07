@@ -17,6 +17,7 @@ public static class ExceptionHandlerExtensions
 
                 var status = ex switch
                 {
+                    FluentValidation.ValidationException => StatusCodes.Status400BadRequest,
                     ValidationException => StatusCodes.Status400BadRequest,
                     NotFoundException   => StatusCodes.Status404NotFound,
                     ConflictException   => StatusCodes.Status409Conflict,

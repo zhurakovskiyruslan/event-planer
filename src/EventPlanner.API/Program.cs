@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using EventPlanner.Application.DependencyInjection;
 using System.Text.Json.Serialization;
 using EventPlanner.API.Middlewares;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,9 @@ builder.Services.AddInfrastructure();
 
 // Добавляем контроллеры
 builder.Services.AddControllers();
+
+// Подключаем FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<EventPlanner.Application.Common.Validation.LocationValidator>();
 
 // Подключаем Swagger (удобно для теста API)
 builder.Services.AddEndpointsApiExplorer();
