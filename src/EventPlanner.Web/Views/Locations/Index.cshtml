@@ -1,0 +1,27 @@
+@model List<EventPlanner.Web.Models.LocationVm>
+
+<h2>Locations</h2>
+<p><a asp-action="Create" class="btn btn-primary">+ New</a></p>
+
+<table class="table">
+    <thead>
+    <tr><th>Id</th><th>Name</th><th>Address</th><th>Capacity</th><th></th></tr>
+    </thead>
+    <tbody>
+    @foreach (var l in Model)
+    {
+        <tr>
+            <td>@l.Id</td>
+            <td>@l.Name</td>
+            <td>@l.Address</td>
+            <td>@l.Capacity</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@l.Id">Edit</a>
+                <form asp-action="Delete" asp-route-id="@l.Id" method="post" style="display:inline">
+                    <button class="btn btn-link p-0 ms-2">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

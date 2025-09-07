@@ -25,7 +25,7 @@ builder.Services.AddInfrastructure();
 builder.Services.AddControllers();
 
 // Подключаем FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<EventPlanner.Application.Common.Validation.LocationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<EventPlanner.Application.Common.Validation.EventValidator>();
 
 // Подключаем Swagger (удобно для теста API)
 builder.Services.AddEndpointsApiExplorer();
