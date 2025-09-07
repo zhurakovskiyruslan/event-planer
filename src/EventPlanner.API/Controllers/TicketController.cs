@@ -1,6 +1,5 @@
 using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
-using EventPlanner.Application.Common.Parsing;
 using EventPlanner.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +28,7 @@ namespace EventPlanner.API.Controllers
         {
             var ticket = new Ticket()
             {
-                Type = TicketTypeParser.ParseOrThrow(dto.Type),
+                Type = dto.Type,
                 Price = dto.Price,
                 EventId = dto.EventId
             };
@@ -51,7 +50,7 @@ namespace EventPlanner.API.Controllers
             var ticket = new Ticket()
             {
                 Id = id,
-                Type = TicketTypeParser.ParseOrThrow(dto.Type),
+                Type = dto.Type,
                 Price = dto.Price,
                 EventId = dto.EventId
             };

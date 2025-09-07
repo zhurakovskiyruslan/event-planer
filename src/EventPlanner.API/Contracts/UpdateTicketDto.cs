@@ -1,7 +1,9 @@
+using EventPlanner.Data.Enums;
+
 namespace EventPlanner.API.Contracts;
 
 public record UpdateTicketDto(
-    string Type,
+    TicketType Type,
     double Price,
     int EventId
     );

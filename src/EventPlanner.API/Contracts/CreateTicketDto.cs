@@ -1,9 +1,11 @@
 
 
+using EventPlanner.Data.Enums;
+
 namespace EventPlanner.API.Contracts;
 
 public record CreateTicketDto(
-    string Type,
+    TicketType Type,
     double Price,
     int EventId
     );
