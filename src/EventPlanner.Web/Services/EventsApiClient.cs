@@ -17,7 +17,7 @@ public class EventsApiClient
         await _http.PostAsJsonAsync("api/event", dto);
     
     public async Task UpdateAsync(int id, UpdateEventVm dto) =>
-    await _http.PutAsJsonAsync("api/event", dto);
+    await _http.PutAsJsonAsync($"api/event/{id}", dto);
     
     public async Task DeleteAsync(int id) =>
         await _http.DeleteAsync($"api/event/{id}");

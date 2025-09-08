@@ -56,8 +56,6 @@ public class EventsController : Controller
         var vm = new UpdateEventVm(item.Title, item.Description, item.StartAtUtc, item.Capacity, item.LocationId);
         ViewBag.Id = id;
         return View(vm);
-
-       
     }
 
     [HttpPost]

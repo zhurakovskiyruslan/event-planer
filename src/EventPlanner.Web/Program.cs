@@ -8,6 +8,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<LocationsApiClient>(c =>
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
     .Services.AddHttpClient<EventsApiClient>(c =>
+        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
+    .Services.AddHttpClient<TicketApiClient>(c =>
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!));
 
 builder.WebHost.UseUrls("http://localhost:5001");
