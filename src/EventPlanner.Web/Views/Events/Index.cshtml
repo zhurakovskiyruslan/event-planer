@@ -2,6 +2,10 @@
 
 <h2 class="mb-4">Events</h2>
 
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-success">+ Add New Event</a>
+</div>
+
 <table class="table table-striped table-hover table-bordered align-middle">
     <thead class="table-dark">
     <tr>
@@ -11,10 +15,11 @@
         <th scope="col">Start Date</th>
         <th scope="col">Capacity</th>
         <th scope="col">Location Id</th>
+        <th scope="col">Actions</th>
     </tr>
     </thead>
     <tbody>
-    @if (Model != null && Model.Any())
+    @if (Model.Any())
     {
         foreach (var e in Model)
         {
@@ -26,9 +31,9 @@
                 <td>@e.Capacity</td>
                 <td>@e.LocationId</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@e.Id">Edit</a>
+                    <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-sm btn-primary">Edit</a>
                     <form asp-action="Delete" asp-route-id="@e.Id" method="post" style="display:inline">
-                        <button class="btn btn-link p-0 ms-2">Delete</button>
+                        <button class="btn btn-sm btn-danger ms-2">Delete</button>
                     </form>
                 </td>
             </tr>
@@ -37,7 +42,7 @@
     else
     {
         <tr>
-            <td colspan="6" class="text-center text-muted">
+            <td colspan="7" class="text-center text-muted">
                 Нет событий для отображения
             </td>
         </tr>

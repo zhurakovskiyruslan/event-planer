@@ -18,7 +18,7 @@ public class LocationsApiClient
         await _http.PostAsJsonAsync("api/Location", dto);
 
     public async Task UpdateAsync(int id, UpdateLocationVm dto) =>
-        await _http.PutAsJsonAsync($"api/Location/put/{id}", dto);
+        await _http.PutAsJsonAsync($"api/Location/{id}", dto);
 
     public async Task DeleteAsync(int id) =>
         await _http.DeleteAsync($"api/Location/delete/{id}");

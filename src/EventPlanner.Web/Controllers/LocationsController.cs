@@ -29,7 +29,6 @@ public class LocationsController : Controller
     {
         var item = await _api.GetAsync(id);
         if (item is null) return NotFound();
-
         var vm = new UpdateLocationVm(item.Name, item.Address, item.Capacity);
         ViewBag.Id = id; // чтобы знать кого апдейтить
         return View(vm);
