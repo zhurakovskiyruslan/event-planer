@@ -28,22 +28,18 @@ public class TicketController : Controller
     
     public async Task<IActionResult> Create()
     {
-        var events = await _eventsApi.GetAllAsync();
-        ViewBag.Events = events
-            .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.Title })
-            .ToList();
+        await LoadEventsAsync();
         return View();
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create(CreateTicketVm model)
+    public async Task<IActionResult> Create(UpsertTicketVm model)
     {
         if (!ModelState.IsValid)
+        {
+            await LoadEventsAsync();
             return View(model);
-        var events = await _eventsApi.GetAllAsync();
-        ViewBag.Events = events
-            .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.Title })
-            .ToList();
+        }
         await _ticketApi.CreateAsync(model);
         return RedirectToAction(nameof(Index));
     }
@@ -53,11 +49,8 @@ public class TicketController : Controller
     {
         var ticket = await _ticketApi.GetByIdAsync(id);
         if (ticket is  null) return NotFound();
-        var events = await _eventsApi.GetAllAsync();
-        ViewBag.Events = events
-            .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.Title })
-            .ToList();
-        var updatedTicket = new UpdateTicketVm
+        await LoadEventsAsync();
+        var updatedTicket = new UpsertTicketVm()
         {
             Type = ticket.Type,
             Price = ticket.Price,
@@ -68,16 +61,14 @@ public class TicketController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(int id, UpdateTicketVm model)
+    public async Task<IActionResult> Edit(int id, UpsertTicketVm model)
     {
-        if  (!ModelState.IsValid)
+        if (!ModelState.IsValid)
+        {
+            await LoadEventsAsync();
+            ViewBag.Id = id;
             return View(model);
-        var events = await _eventsApi.GetAllAsync();
-        ViewBag.Events = events
-            .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.Title })
-            .ToList();
-        var ticketExist = await _ticketApi.GetByIdAsync(id); 
-        if(ticketExist is null) return NotFound();
+        }
         await _ticketApi.UpdateAsync(id, model);
         return RedirectToAction(nameof(Index));
     }
@@ -87,5 +78,16 @@ public class TicketController : Controller
     {
         await _ticketApi.DeleteAsync(id);
         return RedirectToAction(nameof(Index));
+    }
+    
+    [NonAction]
+    private async Task LoadEventsAsync()
+    {
+        var events = await _eventsApi.GetAllAsync();
+        ViewBag.Events = events.Select(e => new SelectListItem
+        {
+            Value = e.Id.ToString(),
+            Text  = e.Title
+        }).ToList();
     }
 }
