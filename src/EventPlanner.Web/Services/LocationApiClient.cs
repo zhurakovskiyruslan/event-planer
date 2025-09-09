@@ -3,10 +3,10 @@ using EventPlanner.Web.Models;
 
 namespace EventPlanner.Web.Services;
 
-public class LocationsApiClient
+public class LocationApiClient
 {
     private readonly HttpClient _http;
-    public LocationsApiClient(HttpClient http) => _http = http;
+    public LocationApiClient(HttpClient http) => _http = http;
 
     public async Task<List<LocationVm>> GetAllAsync() =>
         await _http.GetFromJsonAsync<List<LocationVm>>("api/location") ?? new();
@@ -14,10 +14,10 @@ public class LocationsApiClient
     public async Task<LocationVm?> GetAsync(int id) =>
         await _http.GetFromJsonAsync<LocationVm>($"api/Location/{id}");
 
-    public async Task CreateAsync(CreateLocationVm dto) =>
+    public async Task CreateAsync(UpsertLocationVm dto) =>
         await _http.PostAsJsonAsync("api/Location", dto);
 
-    public async Task UpdateAsync(int id, UpdateLocationVm dto) =>
+    public async Task UpdateAsync(int id, UpsertLocationVm dto) =>
         await _http.PutAsJsonAsync($"api/Location/{id}", dto);
 
     public async Task DeleteAsync(int id) =>

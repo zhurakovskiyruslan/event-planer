@@ -1,16 +1,21 @@
 using EventPlanner.Web.Services;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
 // Typed HttpClient для работы с Locations (аналогично потом сделаешь для событий/билетов)
-builder.Services.AddHttpClient<LocationsApiClient>(c =>
+builder.Services.AddHttpClient<LocationApiClient>(c =>
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .Services.AddHttpClient<EventsApiClient>(c =>
+    .Services.AddHttpClient<EventApiClient>(c =>
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
     .Services.AddHttpClient<TicketApiClient>(c =>
+        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
+    .Services.AddHttpClient<UserApiClient>(c => 
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!));
+
+builder.Services.AddValidatorsFromAssemblyContaining<EventPlanner.Web.Models.Validators.UpsertEventVmValidator>();
 
 builder.WebHost.UseUrls("http://localhost:5001");
 var app = builder.Build();

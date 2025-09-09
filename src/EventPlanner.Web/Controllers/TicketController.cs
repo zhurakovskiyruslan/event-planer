@@ -8,12 +8,12 @@ namespace EventPlanner.Web.Controllers;
 public class TicketController : Controller
 {
     private readonly TicketApiClient _ticketApi;
-    private readonly EventsApiClient _eventsApi;
+    private readonly EventApiClient _eventApi;
 
-    public TicketController(TicketApiClient ticketApi, EventsApiClient eventsApi)
+    public TicketController(TicketApiClient ticketApi, EventApiClient eventApi)
     {
         _ticketApi = ticketApi;
-        _eventsApi = eventsApi;
+        _eventApi = eventApi;
     }
     
     [HttpGet]
@@ -83,7 +83,7 @@ public class TicketController : Controller
     [NonAction]
     private async Task LoadEventsAsync()
     {
-        var events = await _eventsApi.GetAllAsync();
+        var events = await _eventApi.GetAllAsync();
         ViewBag.Events = events.Select(e => new SelectListItem
         {
             Value = e.Id.ToString(),

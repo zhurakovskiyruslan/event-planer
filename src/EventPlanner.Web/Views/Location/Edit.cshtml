@@ -1,7 +1,8 @@
-@model EventPlanner.Web.Models.CreateLocationVm
-<h2>Create Location</h2>
+@model EventPlanner.Web.Models.UpsertLocationVm
+@{ var id = (int)ViewBag.Id; }
+<h2>Edit Location</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Edit" asp-route-id="@id" method="post">
     <div class="mb-3">
         <label asp-for="Name" class="form-label"></label>
         <input asp-for="Name" class="form-control"/>

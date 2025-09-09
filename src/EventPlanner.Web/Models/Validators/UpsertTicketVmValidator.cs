@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace EventPlanner.Web.Models.Validators;
 
-public class TicketUpsertVmValidator : AbstractValidator<UpsertTicketVm>
+public class UpsertTicketVmValidator : AbstractValidator<UpsertTicketVm>
 {
-    public TicketUpsertVmValidator()
+    public UpsertTicketVmValidator()
     {
         RuleFor(x => x.Type)
             .NotEmpty().WithMessage("Type is required")
