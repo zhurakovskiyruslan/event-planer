@@ -66,7 +66,7 @@ public class BookingController : ControllerBase
             booking.UserId, booking.User.Name, booking.TicketId, booking.Status.ToString())));
     }
     
-    [HttpGet("byIvent/{id}")]
+    [HttpGet("byEvent/{id}")]
     public async Task<ActionResult<BookingResponseDto>> GetByEventId(int id)
     {
         var bookings = await _bookingService.GetByEventId(id);

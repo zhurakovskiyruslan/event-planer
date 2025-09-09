@@ -38,6 +38,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="User" asp-action="Index">Users</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Booking" asp-action="Index">Bookings</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -56,7 +59,7 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<script src="~/js/site.js" asp-append-version="true"></script>
+   @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

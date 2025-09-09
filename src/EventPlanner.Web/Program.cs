@@ -1,5 +1,7 @@
+using EventPlanner.Web.Models.Validators;
 using EventPlanner.Web.Services;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +15,12 @@ builder.Services.AddHttpClient<LocationApiClient>(c =>
     .Services.AddHttpClient<TicketApiClient>(c =>
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
     .Services.AddHttpClient<UserApiClient>(c => 
+        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
+    .Services.AddHttpClient<BookingApiClient>(c => 
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!));
 
-builder.Services.AddValidatorsFromAssemblyContaining<EventPlanner.Web.Models.Validators.UpsertEventVmValidator>();
-
+builder.Services.AddValidatorsFromAssemblyContaining<UpsertEventVmValidator>();
+builder.Services.AddFluentValidationAutoValidation();
 builder.WebHost.UseUrls("http://localhost:5001");
 var app = builder.Build();
 if (app.Environment.IsDevelopment())

@@ -30,7 +30,12 @@ public class UserController : Controller
     public async Task<IActionResult> Create(UpsertUserVm model)
     {
         if (!ModelState.IsValid) return View(model);
-        await _userApi.CreateAsync(model);
+        var result = await _userApi.CreateAsync(model);
+        if (result == null)
+        {
+            ModelState.AddModelError("", "Failed to create User");
+            return View();
+        }
         return RedirectToAction(nameof(Index));
     }
 
@@ -48,7 +53,12 @@ public class UserController : Controller
     public async Task<IActionResult> Edit(int id, UpsertUserVm model)
     {
         if (!ModelState.IsValid) return View(model);
-        await _userApi.UpdateAsync(id, model);
+        var result = await _userApi.UpdateAsync(id, model);
+        if (result == null)
+        {
+            ModelState.AddModelError("", "Failed to update User");
+            return View();
+        }
         return RedirectToAction(nameof(Index));
     }
     [HttpPost]

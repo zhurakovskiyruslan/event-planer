@@ -21,7 +21,6 @@ public class TicketController : Controller
     {
         ViewBag.Searched = id.HasValue; // чтобы понимать, искали ли вообще
         if (!id.HasValue) return View(model: null);
-
         var ticket = await _ticketApi.GetByIdAsync(id.Value); // null если не найден
         return View(ticket); // модель = TicketVm? (может быть null)
     }
