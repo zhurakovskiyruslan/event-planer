@@ -1,0 +1,39 @@
+@model EventPlanner.Web.Models.TicketVm
+
+@{
+    ViewData["Title"] = "Find Ticket";
+}
+
+<h2 class="mb-3">Find Ticket</h2>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-success">+ Add Ticket</a>
+</div>
+
+<form asp-action="Index" method="get" class="row g-3 mb-4">
+    <div class="col-auto">
+        <input name="id" type="number" class="form-control" placeholder="Ticket Id" required />
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary">Search</button>
+        <a asp-controller="Event" asp-action="Index" class="btn btn-link">Back to events</a>
+    </div>
+</form>
+
+@if (Model is not null)
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Ticket #@Model.Id</h5>
+            <p class="card-text"><strong>Type:</strong> @Model.Type</p>
+            <p class="card-text"><strong>Price:</strong> @Model.Price.ToString("F2")</p>
+            <p class="card-text"><strong>EventId:</strong> @Model.EventId</p>
+
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">Edit</a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display:inline">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-sm btn-danger ms-2">Delete</button>
+            </form>
+        </div>
+    </div>
+}

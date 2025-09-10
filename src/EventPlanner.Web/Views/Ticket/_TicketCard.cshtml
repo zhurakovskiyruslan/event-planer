@@ -1,0 +1,16 @@
+@model EventPlanner.Web.Models.TicketVm
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Ticket #@Model.Id (@Model.Type)</h5>
+        <p class="card-text mb-1"><strong>Price:</strong> @Model.Price.ToString("F2")</p>
+        <p class="card-text mb-1"><strong>EventId:</strong> @Model.EventId</p>
+
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">Edit</a>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display:inline">
+            @Html.AntiForgeryToken()
+            <button class="btn btn-sm btn-danger ms-2">Delete</button>
+        </form>
+    </div>
+</div>

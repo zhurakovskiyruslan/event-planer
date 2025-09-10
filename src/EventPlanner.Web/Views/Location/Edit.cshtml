@@ -1,0 +1,25 @@
+@model EventPlanner.Web.Models.UpsertLocationVm
+@{ var id = (int)ViewBag.Id; }
+<h2>Edit Location</h2>
+
+<form asp-action="Edit" asp-route-id="@id" method="post">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control"/>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Address" class="form-label"></label>
+        <input asp-for="Address" class="form-control"/>
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Capacity" class="form-label"></label>
+        <input asp-for="Capacity" class="form-control"/>
+        <span asp-validation-for="Capacity" class="text-danger"></span>
+    </div>
+    <button class="btn btn-success">Save</button>
+    <a asp-action="Index" class="btn btn-link">Cancel</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

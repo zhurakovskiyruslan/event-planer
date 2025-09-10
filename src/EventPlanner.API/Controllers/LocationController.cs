@@ -60,7 +60,7 @@ public class LocationController : ControllerBase
         return Ok(locations.Select(l => new LocationResponseDto(l.Id, l.Name, l.Address, l.Capacity)));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("delete/{id}")]
     public async Task<ActionResult> Delete(int id)
     {
        await _service.DeleteAsync(id);
