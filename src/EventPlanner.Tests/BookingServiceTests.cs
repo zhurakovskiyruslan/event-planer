@@ -130,6 +130,23 @@ public class BookingServiceTests
     }
     #endregion
     #region CancelAsync
+
+    [Test]
+    public async Task CancelAsync_CallsDeleteOnce()
+    {
+        //arrange
+        const int id = 1;
+        var booking = new Booking()
+        { 
+            Status = BookingStatus.Active
+        };
+        _bookingRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(booking);
+        //act
+        await _bookingService.CancelAsync(id);
+        //assert
+        _bookingRepoMock.Verify(r => r.CancelAsync(id), Times.Once);
+        
+    }
     [Test]
     public void CancelAsync_IdNotFound_ThrowsNotFound()
     {
@@ -156,6 +173,84 @@ public class BookingServiceTests
     }
     #endregion
     #region GetByIdAsync
+
+    [Test]
+    public async Task GetById_ExistingBooking_CallsGetOnce()
+    {
+        //arrange
+        const int id = 1;
+        _bookingRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(new Booking());
+        //act
+        await _bookingService.GetById(id);
+        //assert
+        _bookingRepoMock.Verify(r => r.GetByIdAsync(id), Times.Once);
+    }
+
+    [Test]
+    public void GetById_NotExistingBooking_CallsGetOnce()
+    {
+        //arrange
+        const int id = 1;
+        _bookingRepoMock.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Booking?)null);
+        //act + assert
+        Assert.ThrowsAsync<NotFoundException>(() => _bookingService.GetById(id));
+        _bookingRepoMock.Verify(r => r.GetByIdAsync(id), Times.Once);
+    }
+    #endregion
+    #region GetByUserIdAsync
+
+    [Test]
+    public async Task GetByUserId_ExistingUserAndBooking_CallsGetOnce()
+    {
+        //arrange
+        var booking = new Booking
+        {
+            UserId = 1
+        };
+        _userRepoMock.Setup(r => r.ExistsAsync(booking.UserId)).ReturnsAsync(true);
+        _bookingRepoMock.Setup(r => r.GetByUserIdAsync(booking.UserId)).
+            ReturnsAsync(new List<Booking>{booking});
+        //act
+        var res = await _bookingService.GetByUserId(booking.UserId);
+        //assert
+        Assert.That(res, Is.Not.Null);
+        Assert.That(res, Is.InstanceOf<List<Booking>>());
+        Assert.That(res, Has.Count.EqualTo(1));
+        Assert.That(res[0].UserId, Is.EqualTo(booking.UserId) );
+        _bookingRepoMock.Verify(r => r.GetByUserIdAsync(booking.UserId), Times.Once);
+    }
+
+    [Test]
+    public void GetByUserId_NotExistingBooking_CallsGetOnce()
+    {
+        //arrange
+        var booking = new Booking
+        {
+            UserId = 1
+        };
+        _userRepoMock.Setup(r => r.ExistsAsync(booking.UserId)).ReturnsAsync(true);
+        _bookingRepoMock.Setup(r => r.GetByUserIdAsync(booking.UserId)).
+            ReturnsAsync(new List<Booking>{});
+        //act+assert
+        Assert.ThrowsAsync<NotFoundException>(async () => await _bookingService.GetByUserId(booking.UserId));
+        _bookingRepoMock.Verify(r => r.GetByUserIdAsync(booking.UserId), Times.Once);
+        _userRepoMock.Verify(r=>r.ExistsAsync(booking.UserId), Times.Once);
+    }
+
+    [Test]
+    public void GetByUserId_NotExistingUser_CallsGetOnce()
+    {
+        //arrange
+        var booking = new Booking
+        {
+            UserId = 1
+        };
+        _userRepoMock.Setup(r => r.ExistsAsync(booking.UserId)).ReturnsAsync(false);
+        //act+assert
+        Assert.ThrowsAsync<NotFoundException>(async () => await _bookingService.GetByUserId(booking.UserId));
+        _bookingRepoMock.Verify(r => r.GetByUserIdAsync(booking.UserId), Times.Never);
+        _userRepoMock.Verify(r => r.ExistsAsync(booking.UserId), Times.Once);
+    }
     
     #endregion
 }
