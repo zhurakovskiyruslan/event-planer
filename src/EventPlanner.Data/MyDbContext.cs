@@ -27,6 +27,14 @@ public class MyDbContext : DbContext
             .Property(t => t.Type)
             .HasConversion<string>() // enum <-> string ("Active"/"Cancelled")
             .HasMaxLength(20);
+        modelBuilder.Entity<User>(e =>
+        {
+            e.ToTable("Users");
+            e.Property(x => x.AppUserId).IsRequired();
+
+            // Уникальность: 1:1
+            e.HasIndex(x => x.AppUserId).IsUnique();
+        });
         
     }
     
