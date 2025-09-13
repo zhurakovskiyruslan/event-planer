@@ -1,6 +1,7 @@
 using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -8,6 +9,7 @@ namespace EventPlanner.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;

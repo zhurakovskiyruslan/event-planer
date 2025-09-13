@@ -1,12 +1,14 @@
 using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventPlanner.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class BookingController : ControllerBase
 {
     private readonly IBookingService _bookingService;

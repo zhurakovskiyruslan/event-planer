@@ -2,15 +2,21 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using EventPlanner.AuthAPI.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 public class JwtService
 {
     private readonly IConfiguration _config;
+    private readonly UserManager<ApplicationUser> _users;
 
-    public JwtService(IConfiguration config) => _config = config;
+    public JwtService(IConfiguration config, UserManager<ApplicationUser> users)
+    {
+        _config = config;
+        _users = users;
+    }
 
-    public string Issue(ApplicationUser user)
+    public async Task<string> IssueAsync(ApplicationUser user)
     {
         var claims = new List<Claim>
         {
@@ -19,6 +25,14 @@ public class JwtService
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? "")
         };
 
+        var roles = await _users.GetRolesAsync(user);
+        foreach (var r in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, r));  
+            
+            // claims.Add(new Claim("role", r));
+        }
+        
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

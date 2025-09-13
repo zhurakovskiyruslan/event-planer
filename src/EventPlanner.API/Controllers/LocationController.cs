@@ -1,12 +1,15 @@
 using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventPlanner.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "AdminOnly")]
+
 public class LocationController : ControllerBase
 {
     private readonly ILocationService _service;

@@ -1,4 +1,7 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using EventPlanner.AuthAPI;
 using EventPlanner.AuthAPI.Data;
 using EventPlanner.AuthAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,7 +30,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
 // JWT
 var jwt = builder.Configuration.GetSection("Jwt");
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
-
+JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 builder.Services
     .AddAuthentication(options =>
     {
@@ -49,7 +52,10 @@ builder.Services
             IssuerSigningKey = signingKey,
 
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            
+            RoleClaimType = ClaimTypes.Role,
+            NameClaimType = JwtRegisteredClaimNames.UniqueName
         };
 
         // читать токен из cookie (ищем и "Auth", и "access_token")
@@ -131,7 +137,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+await IdentitySeeder.SeedAsync(app.Services);
 // app.UseHttpsRedirection();
 
 app.UseAuthentication();
