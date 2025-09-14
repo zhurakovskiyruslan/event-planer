@@ -1,6 +1,7 @@
 using EventPlanner.Application.Abstractions.Repositories;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Application.Common.Exceptions;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
 using EventPlanner.Data.Enums;
 using FluentValidation;
@@ -60,7 +61,7 @@ public class BookingService(
         return booking;
     }
 
-    public async Task<List<Booking>> GetByUserId(int id)
+    public async Task<List<BookingDto>> GetByUserId(int id)
     {
         var userExist = await userRepo.ExistsAsync(id);
         if(!userExist)

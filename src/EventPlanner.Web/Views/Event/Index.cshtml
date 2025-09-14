@@ -1,51 +1,137 @@
 @model List<EventPlanner.Web.Models.EventVm>
+@{
+ViewData["Title"] = "Events";
+bool isAdmin = User.IsInRole("Admin");
+bool isAuth  = User.Identity?.IsAuthenticated == true;
+}
 
-<h2 class="mb-4">Events</h2>
+@if (isAdmin)
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Events</h2>
+        <a asp-action="Create" class="btn btn-primary">+ Add New Event</a>
+    </div>
 
-<div class="mb-3">
-    <a asp-action="Create" class="btn btn-success">+ Add New Event</a>
-</div>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="text-uppercase small text-body-secondary">
+                        <th style="width:72px">#</th>
+                        <th>Title</th>
+                        <th style="min-width:280px">Description</th>
+                        <th style="width:180px">Start</th>
+                        <th style="width:120px">Capacity</th>
+                        <th style="width:120px">Location</th>
+                        <th style="width:200px" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var e in Model)
+                    {
+                        <tr>
+                            <td class="text-body-secondary">@e.Id</td>
 
-<table class="table table-striped table-hover table-bordered align-middle">
-    <thead class="table-dark">
-    <tr>
-        <th scope="col">#</th>
-        <th scope="col">Title</th>
-        <th scope="col">Description</th>
-        <th scope="col">Start Date</th>
-        <th scope="col">Capacity</th>
-        <th scope="col">Location Id</th>
-        <th scope="col">Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    @if (Model.Any())
+                            <td class="fw-semibold">@e.Title</td>
+
+                            <td class="text-body-secondary">
+                                <span class="d-inline-block text-truncate" style="max-width: 460px;">
+                                    @e.Description
+                                </span>
+                            </td>
+
+                            <td>@e.StartAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+
+                            <td>@e.Capacity</td>
+
+                            <td>@e.LocationTitle</td>
+
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
+                                    <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-outline-secondary">
+                                        Details
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-outline-primary">
+                                        Edit
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@e.Id" method="post"
+                                          onsubmit="return confirm('Delete this event?');">
+                                        <button class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-body-secondary py-4">
+                            No events to display
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <h2 class="mb-4">Events</h2>
+<!-- ===== USERS & GUESTS: карточки ===== -->
+@if (!Model.Any())
+{
+<div class="alert alert-light border text-center">No events to display</div>
+}
+else
+{
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    @foreach (var e in Model.OrderBy(x => x.StartAtUtc))
     {
-        foreach (var e in Model)
-        {
-            <tr>
-                <td>@e.Id</td>
-                <td>@e.Title</td>
-                <td>@e.Description</td>
-                <td>@e.StartAtUtc.ToString("dd.MM.yyyy HH:mm")</td>
-                <td>@e.Capacity</td>
-                <td>@e.LocationId</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-sm btn-primary">Edit</a>
-                    <form asp-action="Delete" asp-route-id="@e.Id" method="post" style="display:inline">
-                        <button class="btn btn-sm btn-danger ms-2">Delete</button>
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-2">@e.Title</h5>
+                <p class="text-muted mb-3">@e.Description</p>
+
+                <ul class="list-unstyled small mb-4">
+                    <li><strong>Date:</strong> @e.StartAtUtc.ToLocalTime().ToString("yyyy-MM-dd · HH:mm")</li>
+                    <li><strong>Location Title:</strong> @e.LocationTitle</li>
+                    <li><strong>Capacity:</strong> @e.Capacity</li>
+                </ul>
+
+                <div class="d-flex gap-2">
+                    <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-outline-secondary">
+                        View details
+                    </a>
+
+                    @if (isAuth)
+                    {
+                    <form asp-controller="Ticket" asp-action="Book" method="get" class="d-inline">
+                        <input type="hidden" name="eventId" value="@e.Id" />
+                        <button class="btn btn-primary">Book</button>
                     </form>
-                </td>
-            </tr>
-        }
+                    }
+                    else
+                    {
+                    <a asp-controller="Auth" asp-action="Login"
+                       asp-route-returnUrl="@Url.Action("Details","Event", new { id = e.Id })"
+                       class="btn btn-primary">
+                        Book
+                    </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
     }
-    else
-    {
-        <tr>
-            <td colspan="7" class="text-center text-muted">
-                Нет событий для отображения
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+</div>
+}
+}
+
+@section Scripts{
+<!-- иконки bootstrap (опционально) -->
+}

@@ -44,6 +44,9 @@ public class TicketController : Controller
     }
 
     [HttpGet]
+    public IActionResult Book() => View(new UpsertTicketVm{EventId = 15, Price = 200, Type = "VIP"});
+
+    [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
         var ticket = await _ticketApi.GetByIdAsync(id);

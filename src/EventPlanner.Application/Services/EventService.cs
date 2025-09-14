@@ -1,6 +1,7 @@
 using EventPlanner.Application.Abstractions.Repositories;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Application.Common.Exceptions;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
 using FluentValidation;
 
@@ -22,14 +23,14 @@ public class EventService(
         return entity;
     }
 
-    public async Task<Event> GetById(int eventId)
+    public async Task<EventDto> GetById(int eventId)
     {
        var entity = await eventRepository.GetByIdAsync(eventId);
        if (entity is null)
             throw new NotFoundException($"Event with id {eventId} not found");
        return entity;
     }
-    public async Task<List<Event>> GetAllAsync() => 
+    public async Task<List<EventDto>> GetAllAsync() => 
         await eventRepository.GetAllAsync();
     
     public async Task UpdateAsync(Event entity)

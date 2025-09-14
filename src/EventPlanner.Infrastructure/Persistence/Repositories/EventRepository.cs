@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using EventPlanner.Application.Abstractions.Repositories;
 using EventPlanner.Data;
+using EventPlanner.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using EventEntity = EventPlanner.Data.Entities.Event;
+using EventPlanner.Application.ReadModels;
 
 namespace EventPlanner.Infrastructure.Persistence.Repositories
 {
@@ -16,16 +18,32 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
             => await _context.Events.AnyAsync(e => e.Id == id);
 
 
-        public async Task<EventEntity?> GetByIdAsync(int id) =>
+        public async Task<EventDto?> GetByIdAsync(int id) =>
             await _context.Events
-                .Include(e => e.Location)
-                .Include(e => e.Tickets)
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .AsNoTracking()
+                .Include(e=>e.Tickets)
+                .Where(e => e.Id == id)                 
+                .Select(e => new EventDto(
+                    e.Id,
+                    e.Title,
+                    e.Description,
+                    e.StartAtUtc,
+                    e.Capacity,
+                    e.Location.Name
+                ))
+                .FirstOrDefaultAsync();     
 
-        public async Task<List<EventEntity>> GetAllAsync() =>
+        public async Task<List<EventDto>> GetAllAsync() =>
             await _context.Events
                 .Include(e => e.Location)
-                .Include(e => e.Tickets)
+                .Select(e => new EventDto(
+                    e.Id,
+                    e.Title,
+                    e.Description,
+                    e.StartAtUtc,
+                    e.Capacity,
+                    e.Location.Name
+                ))
                 .ToListAsync();
 
         public async Task<List<EventEntity>> GetUpcomingEventsAsync() =>

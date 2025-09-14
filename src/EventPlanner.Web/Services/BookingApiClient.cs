@@ -20,13 +20,13 @@ public class BookingApiClient
     public async Task<List<BookingVm>> GetAllActiveBookingsAsync() =>
         await _http.GetFromJsonAsync<List<BookingVm>>($"api/Booking/allActiveBookings") ?? new();
     
-    public async Task<List<BookingVm>> GetByUserIdAsync(int userId)
+    public async Task<List<MyBookingVm>> GetByUserIdAsync(int userId)
     {
         var resp = await _http.GetAsync($"api/Booking/byUser/{userId}");
-        if (resp.StatusCode == HttpStatusCode.NotFound) return null;
+        if (resp.StatusCode == HttpStatusCode.NotFound) return new List<MyBookingVm>();
         
         resp.EnsureSuccessStatusCode();
-        return await resp.Content.ReadFromJsonAsync<List<BookingVm>>();
+        return await resp.Content.ReadFromJsonAsync<List<MyBookingVm>>();
     }
     public async Task<List<BookingVm>> GetByEventIdAsync(int eventId)
     {

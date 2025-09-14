@@ -3,63 +3,107 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EventPlanner.Web</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - EventPlanner</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/EventPlanner.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/wwwroot/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EventPlanner.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Event" asp-action="Index">Events</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Location" asp-action="Index">Locations</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Ticket" asp-action="Index">Tickets</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="User" asp-action="Index">Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Booking" asp-action="Index">Bookings</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
+<header>
+    <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom shadow-sm mb-3">
         <div class="container">
-            &copy; 2025 - EventPlanner.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">EventPlanner</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                    aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div id="mainNav" class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+
+                    <!-- Home (visible to everyone) -->
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+
+                    <!-- Events (visible to everyone) -->
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Event" asp-action="Index">Events</a>
+                    </li>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <!-- Admin-only -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Location" asp-action="Index">Locations</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Ticket" asp-action="Index">Tickets</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="User" asp-action="Index">Users</a>
+                        </li>
+                    }
+                    else if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <!-- Authenticated user -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Booking" asp-action="My">My bookings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="User" asp-action="Profile">Profile</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <!-- Guest -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Login">Sign in</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Register">Sign up</a>
+                        </li>
+                    }
+                </ul>
+
+                <!-- Right side: auth controls -->
+                <ul class="navbar-nav ms-auto">
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                       
+                        <li class="nav-item">
+                            <!-- if your logout is POST (рекомендуется) -->
+                            <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">Sign out</button>
+                            </form>
+                            <!-- если у тебя Logout — GET, можешь вместо формы оставить ссылку:
+                            <a class="btn btn-outline-secondary btn-sm" asp-controller="Auth" asp-action="Logout">Sign out</a>
+                            -->
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    </nav>
+</header>
+
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted mt-auto">
+    <div class="container py-3">
+        &copy; @DateTime.UtcNow.Year - EventPlanner
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 <script src="~/js/site.js" asp-append-version="true"></script>
-   @await RenderSectionAsync("Scripts", required: false)
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

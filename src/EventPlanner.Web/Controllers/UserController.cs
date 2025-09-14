@@ -12,6 +12,7 @@ public class UserController : Controller
     {
         _userApi = userApi;
     }
+    [HttpDelete]
     public async Task<IActionResult> Index(int? id, string? email)
     {
         if (!id.HasValue && string.IsNullOrWhiteSpace(email))
@@ -24,6 +25,18 @@ public class UserController : Controller
 
         return View(user);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Profile()
+    {
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        int domainUserId = int.Parse(userIdClaim);
+        var user = await _userApi.GetByIdAsync(domainUserId);
+        return View(user);
+    }
+    
+    [HttpGet]
     public async Task<IActionResult> Create() => View();
 
     [HttpPost]

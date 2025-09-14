@@ -34,10 +34,7 @@ public class BookingController : Controller
             var one = await _bookingApi.GetByUserAndTicketAsync(userId.Value, ticketId.Value);
             if (one != null) list.Add(one);
         }
-        else if (userId.HasValue)
-        {
-            list = await _bookingApi.GetByUserIdAsync(userId.Value);
-        }
+        
         else if (eventId.HasValue)
         {
             list = await _bookingApi.GetByEventIdAsync(eventId.Value);
@@ -51,23 +48,33 @@ public class BookingController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> My()
     {
-        return View();
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        int domainUserId = int.Parse(userIdClaim);
+        var bookings = await _bookingApi.GetByUserIdAsync(domainUserId);
+        return View(bookings);
+       
     }
 
+    [HttpGet]
+    public IActionResult Create() => View();
+
     [HttpPost]
-    public async Task<IActionResult> Create(UpsertBookingVm booking)
+    public async Task<IActionResult> Create(int eventId)
     {
-        if (!ModelState.IsValid)
-            return View(booking);
-        var result = await _bookingApi.CreateAsync(booking);
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        int domainUserId = int.Parse(userIdClaim);
+       
+        var result = await _bookingApi.CreateAsync(new UpsertBookingVm(domainUserId, eventId));
         if (result == null)
         {
             ModelState.AddModelError("", "Failed to create booking");
             return View();
         }
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction();
     }
 
     [HttpPost]
@@ -83,7 +90,10 @@ public class BookingController : Controller
         await _bookingApi.DeleteAsync(id);
         return RedirectToAction(nameof(Index));
     }
-
+//
+//
+//
+//      ТУТ ОТВАЛИТСЯ
     [NonAction]
     private async Task LoadEventAsync()
     {

@@ -1,8 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using EventPlanner.Web.Infrastructure;
 using EventPlanner.Web.Models.Validators;
 using EventPlanner.Web.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,8 +45,46 @@ builder.Services.AddHttpClient<LocationApiClient>(c =>
 builder.Services
     .AddFluentValidationAutoValidation()          // серверная валидация
     .AddFluentValidationClientsideAdapters();     // клиентская (jquery unobtrusive)
-
 builder.Services.AddValidatorsFromAssemblyContaining<UpsertEventVmValidator>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(o =>
+{
+    var jwt = builder.Configuration.GetSection("Jwt");
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,  ValidIssuer   = jwt["Issuer"],
+        ValidateAudience = true,ValidAudience = jwt["Audience"],
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!)),
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+
+        // важно для Razor: как читать имя и роли
+        RoleClaimType = ClaimTypes.Role,
+        NameClaimType = JwtRegisteredClaimNames.UniqueName // ты кладёшь unique_name
+    };
+
+    // читаем токен из куки "Auth"
+    o.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = ctx =>
+        {
+            if (ctx.Request.Cookies.TryGetValue("Auth", out var token) && !string.IsNullOrWhiteSpace(token))
+                ctx.Token = token;
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddAuthorization();
+
+
 
 builder.WebHost.UseUrls("http://localhost:5001");
 var app = builder.Build();
@@ -58,6 +101,10 @@ if (!app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseAuthentication();   // <= обязательно перед UseAuthorization
+app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",

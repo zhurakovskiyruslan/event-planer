@@ -1,5 +1,6 @@
 using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,18 +34,10 @@ namespace EventPlanner.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EventResponseDto>> GetById(int id)
-        {
-            var events = await _eventService.GetById(id);
-            return Ok(new EventResponseDto(events.Id, events.Title, events.Description, events.StartAtUtc, events.Capacity, events.LocationId));
-        }
+        public async Task<ActionResult<EventDto>> GetById(int id) => await _eventService.GetById(id);
 
         [HttpGet]
-        public async Task<ActionResult<List<EventResponseDto>>> GetAll()
-        {
-            var entity =  await _eventService.GetAllAsync();
-            return Ok(entity.Select(events => new EventResponseDto(events.Id, events.Title, events.Description, events.StartAtUtc, events.Capacity, events.LocationId)));
-        }
+        public async Task<ActionResult<List<EventDto>>> GetAll() => await _eventService.GetAllAsync();
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)

@@ -1,11 +1,10 @@
-namespace EventPlanner.Web.Models;
+namespace EventPlanner.Application.ReadModels;
 
-public record EventVm(
-    int Id, 
+public record EventDto(
+    int Id,
     string Title,
     string Description,
     DateTime StartAtUtc,
     int Capacity,
-    int LocationId,
     string LocationTitle
-    );
+);

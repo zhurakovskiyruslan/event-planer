@@ -72,6 +72,14 @@ public class EventController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
+    {
+        var item = await _api.GetAsync(id);
+        if (item is null) return NotFound();
+        return View(item);
+    }
+
     [NonAction]
     private async Task LoadLocationAsync()
     {

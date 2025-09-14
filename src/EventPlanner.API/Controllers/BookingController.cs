@@ -1,5 +1,6 @@
 using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -61,12 +62,7 @@ public class BookingController : ControllerBase
 
     //получить все брони по заданому юзер айди
     [HttpGet("byUser/{id}")]
-    public async Task<ActionResult<BookingResponseDto>> GetByUserId(int id)
-    {
-        var bookings = await _bookingService.GetByUserId(id);
-        return Ok(bookings.Select(booking => new BookingResponseDto(booking.Id, 
-            booking.UserId, booking.User.Name, booking.TicketId, booking.Status.ToString())));
-    }
+    public async Task<ActionResult<List<BookingDto>>> GetByUserId(int id) => await _bookingService.GetByUserId(id);
     
     [HttpGet("byEvent/{id}")]
     public async Task<ActionResult<BookingResponseDto>> GetByEventId(int id)

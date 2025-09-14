@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using EventPlanner.Application.Abstractions.Repositories;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data;              // MyDbContext
 using EventPlanner.Data.Entities;
 using EventPlanner.Data.Enums; // Booking, Ticket, Event, User
@@ -26,13 +27,23 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                         .ThenInclude(e => e.Location)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
-        public async Task<List<Booking>> GetByUserIdAsync(int userId) =>
+        public async Task<List<BookingDto>> GetByUserIdAsync(int userId) =>
             await _context.Bookings
                 .Include(b => b.User)
                 .Include(b => b.Ticket)
                     .ThenInclude(t => t.Event)
                         .ThenInclude(e => e.Location)
                 .Where(b => b.UserId == userId)
+                .Select(b => new BookingDto(
+                    b.Ticket.Event.Title,
+                    b.Ticket.Event.Description,
+                    b.Ticket.Event.StartAtUtc,
+                    b.Ticket.Event.Location.Name,
+                    b.Ticket.Event.Location.Address,
+                    b.Ticket.Type.ToString(),
+                    b.Ticket.Price,
+                    b.Status.ToString()
+                    ))
                 .ToListAsync();
 
         public async Task<List<Booking>> GetByEventIdAsync(int eventId) =>
