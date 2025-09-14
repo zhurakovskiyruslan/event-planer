@@ -64,6 +64,13 @@ public class AuthController : Controller
 
         return RedirectToAction("Index", "Home");
     }
+
+    [HttpPost]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("auth", new CookieOptions { Path = "/" });
+        return RedirectToAction("Index", "Home");
+    }
     
     
 }
