@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using EventPlanner.Application.Abstractions.Repositories;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data;              // MyDbContext
 using EventPlanner.Data.Entities;     // User, Booking, Ticket, Event
 
@@ -30,6 +31,25 @@ public class UserRepository : IUserRepository
         return await _context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    public async Task<User?> GetByAppUserId(int appUserId)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.AppUserId == appUserId);
+    }
+
+    public async Task<List<UserDto>> GetAllAsync()
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Select(u => new UserDto(
+                    u.Id,
+                    u.Name,
+                    u.Email
+                    ))
+            .ToListAsync();
     }
 
     public async Task AddAsync(User entity)

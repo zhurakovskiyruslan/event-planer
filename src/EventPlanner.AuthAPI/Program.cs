@@ -65,9 +65,6 @@ builder.Services
             {
                 if (ctx.Request.Cookies.TryGetValue("Auth", out var token) && !string.IsNullOrWhiteSpace(token))
                     ctx.Token = token;
-                else if (ctx.Request.Cookies.TryGetValue("access_token", out var token2) && !string.IsNullOrWhiteSpace(token2))
-                    ctx.Token = token2;
-
                 return Task.CompletedTask;
             },
             OnAuthenticationFailed = ctx =>
@@ -79,7 +76,11 @@ builder.Services
 
         o.SaveToken = true;
     });
-
+builder.Services.AddHttpClient("DomainApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["DomainApi:BaseUrl"]);
+   
+});
 builder.Services.ConfigureApplicationCookie(opt =>
 {
     // чтобы API отдавал 401/403, а не редиректил

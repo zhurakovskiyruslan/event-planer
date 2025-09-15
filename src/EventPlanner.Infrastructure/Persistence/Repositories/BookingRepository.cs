@@ -35,6 +35,8 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                         .ThenInclude(e => e.Location)
                 .Where(b => b.UserId == userId)
                 .Select(b => new BookingDto(
+                    b.Id,
+                    b.Ticket.EventId,
                     b.Ticket.Event.Title,
                     b.Ticket.Event.Description,
                     b.Ticket.Event.StartAtUtc,

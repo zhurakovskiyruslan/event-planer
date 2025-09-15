@@ -32,6 +32,7 @@ else
                         <th>Ticket</th>
                         <th class="text-end">Price</th>
                         <th class="text-center">Status</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,7 +40,7 @@ else
                 {
                     <tr>
                         <td>
-                            <a asp-controller="Event" asp-action="Details" asp-route-id="@b.EventTitle"
+                            <a asp-controller="Event" asp-action="Details" asp-route-id="@b.EventId"
                                class="fw-medium link-body-emphasis text-decoration-none">@b.EventTitle</a>
                             <div class="text-muted small">@b.EventDescription</div>
                         </td>
@@ -52,6 +53,18 @@ else
                             <span class="badge rounded-pill px-3 py-2 @StatusPill(b.BookingStatus)">
                                 @b.BookingStatus
                             </span>
+                        </td>
+                        <td class="text-end">
+                            @if (b.BookingStatus.Equals("Active", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <form asp-controller="Booking" asp-action="Cancel" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@b.BookingId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                        Cancel
+                                    </button>
+                                </form>
+                            }
                         </td>
                     </tr>
                 }

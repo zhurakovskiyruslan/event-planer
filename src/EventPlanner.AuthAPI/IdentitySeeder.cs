@@ -14,17 +14,5 @@ public static class IdentitySeeder
         const string adminRole = "Admin";
         if (!await roles.RoleExistsAsync(adminRole))
             await roles.CreateAsync(new ApplicationRole { Name = adminRole });
-
-        // создадим первого админа, если нет
-        var email = "admin@event.local";
-        var admin = await users.FindByEmailAsync(email);
-        if (admin is null)
-        {
-            admin = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
-            // пароль только для dev
-            var result = await users.CreateAsync(admin, "Admin!123");
-            if (result.Succeeded)
-                await users.AddToRoleAsync(admin, adminRole);
-        }
     }
 }

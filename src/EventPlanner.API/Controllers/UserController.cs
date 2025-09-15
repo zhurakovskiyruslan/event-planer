@@ -9,7 +9,6 @@ namespace EventPlanner.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -24,15 +23,28 @@ namespace EventPlanner.API.Controllers
         public async Task<ActionResult<UserResponseDto>> GetById(int id)
         {
             var user = await _userService.GetById(id);
-            return Ok(new UserResponseDto(user.Id, user.Name, user.Email));
+            return Ok(new UserResponseDto(user.Id, user.Name, user.Email, user.AppUserId));
         }
-
-        // GET: api/<UserController>
+        
         [HttpGet("by-email/{email}", Name = "GetUserByEmail")]
         public async Task<ActionResult<UserResponseDto>> GetByEmailAsync(string email)
         {
             var user = await _userService.GetByEmail(email);
-            return Ok(new UserResponseDto(user.Id, user.Name, user.Email));
+            return Ok(new UserResponseDto(user.Id, user.Name, user.Email, user.AppUserId));
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<UserResponseDto>>> GetAll()
+        {
+            
+            return Ok(await _userService.GetAllAsync());
+        }
+
+        [HttpGet("ByAppUserId/{appUserId}")]
+        public async Task<ActionResult<UserResponseDto>> GetUserByAppUserId(int appUserId)
+        {
+            var user = await _userService.GetByAppUserId(appUserId);
+            return Ok(new UserResponseDto(user.Id, user.Name, user.Email, user.AppUserId));
         }
         
         // POST api/<UserController>
@@ -42,10 +54,11 @@ namespace EventPlanner.API.Controllers
             var user = new User()
             {
                 Name = dto.Name,
-                Email = dto.Email
+                Email = dto.Email,
+                AppUserId = dto.AppUserId
             };
             var result = await _userService.CreateAsync(user);
-            var response = new UserResponseDto(result.Id, result.Name, result.Email);
+            var response = new UserResponseDto(result.Id, result.Name, result.Email, result.AppUserId);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
         }
         // PUT api/<UserController>/5
@@ -59,7 +72,7 @@ namespace EventPlanner.API.Controllers
                 Email = dto.Email
             };
             await _userService.UpdateAsync(user);
-            var response = new UserResponseDto(user.Id, user.Name, user.Email);
+            var response = new UserResponseDto(user.Id, user.Name, user.Email, user.AppUserId);
             return Ok(response);
         }
        

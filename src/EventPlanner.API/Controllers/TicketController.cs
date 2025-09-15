@@ -1,5 +1,7 @@
 using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
+using EventPlanner.Application.Common.Exceptions;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +10,7 @@ namespace EventPlanner.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class TicketController : ControllerBase
     {
         private readonly ITicketService _ticketService;
@@ -23,6 +25,20 @@ namespace EventPlanner.API.Controllers
         {
             var ticket = await _ticketService.GetById(id);
             return Ok(new TicketResponseDto(ticket.Id, ticket.Type, ticket.Price, ticket.EventId));
+        }
+
+        [HttpGet("byEvent/{eventId}")]
+        public async Task<ActionResult<List<TicketDto>>> GetByEventIdAsync(int eventId)
+        {
+            try
+            {
+                var result = await _ticketService.GetByEventId(eventId);
+                return Ok(result);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         [HttpPost]

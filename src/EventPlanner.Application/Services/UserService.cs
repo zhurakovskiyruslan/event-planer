@@ -2,6 +2,7 @@ using EventPlanner.Application.Abstractions.Repositories;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Application.Common.Exceptions;
 using EventPlanner.Application.Common.Validation;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
 using FluentValidation;
 
@@ -23,6 +24,18 @@ public class UserService(
         return await userRepository.GetByEmailAsync(email)??
                throw new NotFoundException($"user with email {email} not found");;
     }
+    public async Task<User> GetByAppUserId(int appUserId)
+    {
+        return await userRepository.GetByAppUserId(appUserId)??
+               throw new NotFoundException($"user with application user id {appUserId} not found");
+    }
+
+    public async Task<List<UserDto>> GetAllAsync()
+    {
+        return await userRepository.GetAllAsync()??
+               throw new NotFoundException($"user list not found");
+    }
+    
     public async Task UpdateAsync(User user)
     {
         await userValidator.ValidateAndThrowAsync(user);

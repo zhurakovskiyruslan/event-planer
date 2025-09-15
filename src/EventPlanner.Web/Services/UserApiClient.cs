@@ -24,6 +24,24 @@ public class UserApiClient
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<UserVm>();
     }
+
+    public async Task<UserVm?> GetByAppUserIdAsync(int appUserId)
+    {
+        var resp = await _http.GetAsync($"api/user/ByAppUserId/{appUserId}");
+        if (resp.StatusCode == HttpStatusCode.NotFound) return null;
+        
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<UserVm>();
+    }
+
+    public async Task<List<UserVm>> GetAll()
+    {
+        var resp = await _http.GetAsync($"api/user");
+        if (resp.StatusCode == HttpStatusCode.NotFound) return null;
+        
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<List<UserVm>>();
+    }
     public async Task<UserVm?> CreateAsync(UpsertUserVm dto)
     {
         var resp = await _http.PostAsJsonAsync("api/user", dto);

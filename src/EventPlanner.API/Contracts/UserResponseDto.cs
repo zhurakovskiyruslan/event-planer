@@ -3,5 +3,6 @@ namespace EventPlanner.API.Contracts;
 public record UserResponseDto(
     int Id,
     string Name,
-    string Email
+    string Email,
+    int AppUserId
     );

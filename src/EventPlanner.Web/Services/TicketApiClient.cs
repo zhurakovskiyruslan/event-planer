@@ -17,6 +17,15 @@ public class TicketApiClient
         return await  resp.Content.ReadFromJsonAsync<TicketVm>();
     }
     
+    public async Task<List<TicketBookVm?>> GetByEventIdAsync(int eventId)
+    {
+        var resp = await _http.GetAsync($"api/Ticket/byEvent/{eventId}");
+        if (resp.StatusCode == HttpStatusCode.NotFound) return null;
+
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<List<TicketBookVm>>();
+    }
+    
     public async Task CreateAsync(UpsertTicketVm dto) =>
         await _http.PostAsJsonAsync("api/Ticket", dto);
     

@@ -4,7 +4,6 @@ using System.Text;
 using EventPlanner.AuthAPI.Data;
 using EventPlanner.AuthAPI.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace EventPlanner.AuthAPI;
@@ -12,21 +11,17 @@ namespace EventPlanner.AuthAPI;
 public class JwtService
 {
     private readonly IConfiguration _config;
-    private readonly UserManager<ApplicationUser> _users;
-    private readonly AppIdentityDbContext _db;
 
-    public JwtService(IConfiguration config, UserManager<ApplicationUser> users,  AppIdentityDbContext db)
+    public JwtService(IConfiguration config)
     {
         _config = config;
-        _users = users;
-        _db = db;
     }
-    public string Issue(ApplicationUser user, int domainUserId, IEnumerable<string>? roles = null)
+    public string Issue(ApplicationUser user, IEnumerable<string>? roles = null)
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Identity Id
-            new Claim("userId", domainUserId.ToString()),               // Domain Id
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),              
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? "")
         };
 

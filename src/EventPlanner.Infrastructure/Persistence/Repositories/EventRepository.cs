@@ -68,7 +68,7 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                 entityToUpdate.Description = entity.Description;
                 entityToUpdate.StartAtUtc = entity.StartAtUtc;
                 entityToUpdate.Capacity = entity.Capacity;
-                entityToUpdate.Location = entity.Location;
+                entityToUpdate.LocationId = entity.LocationId;
                 _context.Events.Update(entityToUpdate);
                 await _context.SaveChangesAsync();
             }

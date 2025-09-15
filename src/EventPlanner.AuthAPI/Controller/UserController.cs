@@ -4,7 +4,6 @@ using EventPlanner.AuthAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace EventPlanner.AuthAPI.Controller;
 
@@ -15,12 +14,15 @@ public class UserController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AppIdentityDbContext _db;
     private readonly JwtService _jwt;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public UserController(UserManager<ApplicationUser> userManager, AppIdentityDbContext db, JwtService jwt)
+    public UserController(UserManager<ApplicationUser> userManager, 
+        AppIdentityDbContext db, JwtService jwt,  IHttpClientFactory httpClientFactory)
     {
         _userManager = userManager;
         _db = db;
         _jwt = jwt;
+        _httpClientFactory = httpClientFactory;
     }
 
     [HttpPost("register"), AllowAnonymous]
@@ -32,20 +34,29 @@ public class UserController : ControllerBase
         var create = await _userManager.CreateAsync(user, req.Password);
         if (!create.Succeeded) return BadRequest(create.Errors);
 
-        var domain = new UserRead
+       //создание доменного юзера
+
+        var client = _httpClientFactory.CreateClient("DomainApi");
+        var payload = new
         {
-            Name = req.Name,
+            Name = user.UserName,
             Email = req.Email,
-            CreatedAt = DateTime.UtcNow,
-            AppUserId = user.Id
+            AppUserId = user.Id,
         };
-        _db.Set<UserRead>().Add(domain);
+        
+        var response = await client.PostAsJsonAsync("api/user", payload);
+        if (!response.IsSuccessStatusCode)
+        {
+            await _userManager.DeleteAsync(user);
+            return StatusCode((int)response.StatusCode, "Failed to create domain user");
+        }
+       
         await _db.SaveChangesAsync();
 
         // роли (если надо)
         var roles = await _userManager.GetRolesAsync(user);
 
-        var token = _jwt.Issue(user, domain.Id, roles);
+        var token = _jwt.Issue(user, roles);
         await tx.CommitAsync();
 
         return Ok(new {
@@ -61,17 +72,8 @@ public class UserController : ControllerBase
         var user = await _userManager.FindByEmailAsync(req.Email);
         if (user is null || !await _userManager.CheckPasswordAsync(user, req.Password))
             return Unauthorized(new { error = "Invalid email or password" });
-
-        // на логине быстро получаем доменный id
-        var domain = await _db.Set<UserRead>()
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.AppUserId == user.Id);
-
-        if (domain is null)
-            return Problem(detail: $"Profile for AppUserId={user.Id} not found", statusCode: 500);
-
         var roles = await _userManager.GetRolesAsync(user);
-        var token = _jwt.Issue(user, domain.Id, roles);
+        var token = _jwt.Issue(user, roles);
 
         return Ok(new {
             token,

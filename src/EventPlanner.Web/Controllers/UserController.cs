@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -12,27 +13,22 @@ public class UserController : Controller
     {
         _userApi = userApi;
     }
-    [HttpDelete]
-    public async Task<IActionResult> Index(int? id, string? email)
+    [HttpGet]
+    public async Task<IActionResult> Index()
     {
-        if (!id.HasValue && string.IsNullOrWhiteSpace(email))
-            return View(model: null);
-        UserVm? user = null;
-        if (id.HasValue)
-            user = await _userApi.GetByIdAsync(id.Value);
-        else if (!string.IsNullOrWhiteSpace(email))
-            user = await _userApi.GetByEmailAsync(email);
-
-        return View(user);
+        var users = await _userApi.GetAll();
+        return View(users);
     }
 
     [HttpGet]
     public async Task<IActionResult> Profile()
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
-        int domainUserId = int.Parse(userIdClaim);
-        var user = await _userApi.GetByIdAsync(domainUserId);
+        var appUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (appUserIdClaim == null) return View();
+        var domainUser = await _userApi.GetByAppUserIdAsync(int.Parse(appUserIdClaim));
+        if (domainUser == null) return NotFound();
+        var user = await _userApi.GetByIdAsync(domainUser.Id);
+        if (user is null) return NotFound();
         return View(user);
     }
     

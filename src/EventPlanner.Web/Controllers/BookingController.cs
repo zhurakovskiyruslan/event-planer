@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,11 +11,13 @@ public class BookingController : Controller
 {
     private readonly BookingApiClient _bookingApi;
     private readonly EventApiClient _eventApi;
+    private readonly UserApiClient _userApi;
 
-    public BookingController(BookingApiClient bookingApi, EventApiClient eventApi)
+    public BookingController(BookingApiClient bookingApi, EventApiClient eventApi,  UserApiClient userApi)
     {
         _bookingApi = bookingApi;
         _eventApi = eventApi;
+        _userApi = userApi;
     }
     
     [HttpGet]
@@ -50,38 +54,42 @@ public class BookingController : Controller
     [HttpGet]
     public async Task<IActionResult> My()
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
-        int domainUserId = int.Parse(userIdClaim);
-        var bookings = await _bookingApi.GetByUserIdAsync(domainUserId);
+        var appUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (appUserIdClaim == null) return View();
+        
+        var user = await _userApi.GetByAppUserIdAsync(int.Parse(appUserIdClaim));
+        if  (user is  null) return NotFound();
+        var bookings = await _bookingApi.GetByUserIdAsync(user.Id);
         return View(bookings);
-       
+        
     }
 
     [HttpGet]
     public IActionResult Create() => View();
 
     [HttpPost]
-    public async Task<IActionResult> Create(int eventId)
+    public async Task<IActionResult> Create(int ticketId)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
-        int domainUserId = int.Parse(userIdClaim);
+        var appUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (appUserIdClaim == null) return View();
+        var domainUser = await _userApi.GetByAppUserIdAsync(int.Parse(appUserIdClaim));
+        if (domainUser == null) return NotFound();
        
-        var result = await _bookingApi.CreateAsync(new UpsertBookingVm(domainUserId, eventId));
+        var result = await _bookingApi.CreateAsync(new UpsertBookingVm(domainUser.Id, ticketId));
         if (result == null)
         {
             ModelState.AddModelError("", "Failed to create booking");
             return View();
         }
-        return RedirectToAction();
+
+        return RedirectToAction(nameof(My));
     }
 
     [HttpPost]
     public async Task<IActionResult> CancelAsync(int id)
     {
         await _bookingApi.CancelAsync(id);
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(My));
     }
     
     [HttpPost]

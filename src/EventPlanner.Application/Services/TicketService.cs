@@ -1,6 +1,7 @@
 using EventPlanner.Application.Abstractions.Repositories;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Application.Common.Exceptions;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
 using EventPlanner.Data.Enums;
 using FluentValidation;
@@ -19,6 +20,13 @@ public class TicketService(
     {
         var ticket = await ticketRepository.GetByIdAsync(ticketId);
         return ticket ?? throw new NotFoundException($"ticket with id {ticketId} not found");
+    }
+
+    public async Task<List<TicketDto>> GetByEventId(int eventId)
+    {
+        var tickets = await ticketRepository.GetByEventIdAsync(eventId);
+        if(tickets.Count == 0)throw new NotFoundException($"ticket for event {eventId} not found");
+        return tickets;
     }
     
     public async Task<Ticket> CreateAsync(Ticket ticket)
@@ -51,4 +59,6 @@ public class TicketService(
             throw new NotFoundException($"ticket with id {ticketId} not found");
         await ticketRepository.DeleteAsync(ticketId);
     }
+    
+    
 }

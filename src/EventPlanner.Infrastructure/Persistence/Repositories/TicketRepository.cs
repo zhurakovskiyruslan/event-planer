@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using EventPlanner.Application.Abstractions.Repositories;
+using EventPlanner.Application.ReadModels;
 using EventPlanner.Data;
 using EventPlanner.Data.Entities;
 
@@ -24,11 +25,24 @@ public class TicketRepository : ITicketRepository
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
-    public async Task<List<Ticket>> GetByEventIdAsync(int eventId)
+    public async Task<List<TicketDto>> GetByEventIdAsync(int eventId)
     {
         return await _context.Tickets
             .Where(t => t.EventId == eventId)
             .Include(t => t.Bookings)    // полезно для связанных броней
+            .Include(t => t.Event)
+            .ThenInclude(e => e.Location)
+            .Select(t => new TicketDto(
+                t.Id,
+                t.Type,
+                t.Price,
+                t.EventId,
+                t.Event.Title,
+                t.Event.Description,
+                t.Event.StartAtUtc,
+                t.Event.Location.Name,
+                t.Event.Location.Address
+                ))
             .AsNoTracking()
             .ToListAsync();
     }

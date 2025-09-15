@@ -36,7 +36,7 @@ public class EventController : Controller
         await _api.CreateAsync(ConvertTimeToUtc(model));
         return RedirectToAction(nameof(Index));
     }
-    
+    [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
         var item = await _api.GetAsync(id);
