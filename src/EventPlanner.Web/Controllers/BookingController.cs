@@ -21,7 +21,7 @@ public class BookingController : Controller
         _userApi = userApi;
     }
     
-    [HttpGet]
+    /*[HttpGet]
     
     public async Task<IActionResult> Index(int? id, int? userId, int? eventId, int? ticketId, bool? active)
     {
@@ -51,32 +51,32 @@ public class BookingController : Controller
         }
 
         return View(list);
-    }
+    }*/
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> My()
     {
         var appUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (appUserIdClaim == null) return View();
-        
         var user = await _userApi.GetByAppUserIdAsync(int.Parse(appUserIdClaim));
-        if  (user is  null) return NotFound();
+        if (user is null) return NotFound();
         var bookings = await _bookingApi.GetByUserIdAsync(user.Id);
         return View(bookings);
-        
     }
 
     [HttpGet]
+    [Authorize]
     public IActionResult Create() => View();
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create(int ticketId)
     {
         var appUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (appUserIdClaim == null) return View();
         var domainUser = await _userApi.GetByAppUserIdAsync(int.Parse(appUserIdClaim));
         if (domainUser == null) return NotFound();
-       
         var result = await _bookingApi.CreateAsync(new UpsertBookingVm(domainUser.Id, ticketId));
         if (result == null)
         {
@@ -88,28 +88,27 @@ public class BookingController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CancelAsync(int id)
     {
         await _bookingApi.CancelAsync(id);
         return RedirectToAction(nameof(My));
     }
-    
+
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteAsync(int id)
     {
         await _bookingApi.DeleteAsync(id);
         return RedirectToAction(nameof(Index));
     }
-//
-//
-//
-//      ТУТ ОТВАЛИТСЯ
-    [NonAction]
-    private async Task LoadEventAsync()
-    {
-        var events = await _eventApi.GetAllAsync();
-        ViewBag.EventList = events
-            .Select(e => new SelectListItem{ Value = e.Id.ToString(), Text = e.Title })
-            .ToList();
-    }
+
+    // [NonAction]
+    // private async Task LoadEventAsync()
+    // {
+    //     var events = await _eventApi.GetAllAsync();
+    //     ViewBag.EventList = events
+    //         .Select(e => new SelectListItem{ Value = e.Id.ToString(), Text = e.Title })
+    //         .ToList();
+    // }
 }

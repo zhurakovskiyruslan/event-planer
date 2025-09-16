@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 public class AuthController : Controller
@@ -66,9 +67,11 @@ public class AuthController : Controller
     }
 
     [HttpGet]
+    [Authorize]
     public IActionResult ChangePassword() => View();
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> ChangePassword(ChangePasswordVm changePasswordVm)
     {
         if (!ModelState.IsValid) return View();
@@ -84,6 +87,7 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Home");
     }
     [HttpPost]
+    [Authorize]
     public IActionResult Logout()
     {
         Response.Cookies.Delete("auth", new CookieOptions { Path = "/" });

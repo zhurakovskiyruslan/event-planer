@@ -1,5 +1,6 @@
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -20,7 +21,8 @@ public class EventController : Controller
         var items = await _api.GetAllAsync();
         return View(items);
     }
-    
+    [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create()
     {
         await LoadLocationAsync();
@@ -28,6 +30,7 @@ public class EventController : Controller
     }
     
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create(UpsertEventVm model)
     {
         
@@ -45,6 +48,7 @@ public class EventController : Controller
         return RedirectToAction(nameof(Index));
     }
     [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id)
     {
         var item = await _api.GetAsync(id);
@@ -62,6 +66,7 @@ public class EventController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id, UpsertEventVm model)
     {
         var location = await _location.GetAsync(model.LocationId);
@@ -78,6 +83,7 @@ public class EventController : Controller
     }
     
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Delete(int id)
     {
         await _api.DeleteAsync(id);

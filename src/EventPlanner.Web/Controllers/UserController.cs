@@ -65,7 +65,7 @@ public class UserController : Controller
     }
 
     [HttpGet]
-    [Authorize]
+    [Authorize (Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id)
     {
         var item = await _userApi.GetByIdAsync(id);
@@ -76,7 +76,7 @@ public class UserController : Controller
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize (Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id, UpsertUserVm model)
     {
         if (!ModelState.IsValid) return View(model);

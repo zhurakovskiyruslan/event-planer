@@ -84,6 +84,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("changePassword")]
+    [Authorize]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto req)
     {
         var user = await _userManager.FindByIdAsync(req.Id.ToString()); 

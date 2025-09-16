@@ -21,6 +21,7 @@ public class BookingController : ControllerBase
 
     // Создать бронь
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<BookingResponseDto>> Create([FromBody] CreateBookingDto dto )
     {
         var booking = new Booking()
@@ -37,6 +38,7 @@ public class BookingController : ControllerBase
 
     // Отменить бронь
     [HttpDelete("cancel/{id}")]
+    [Authorize]
     public async Task<IActionResult> Cancel(int id, int? actorUserId = null)
     {
         await _bookingService.CancelAsync(id, actorUserId);
@@ -44,6 +46,7 @@ public class BookingController : ControllerBase
     }
     
     [HttpDelete("deleteBooking/{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult> Delete(int id)
     {
        await _bookingService.DeleteAsync(id);
@@ -51,6 +54,7 @@ public class BookingController : ControllerBase
     }
     // Получить бронь по айди
     [HttpGet("{id}")]
+    [Authorize]
 
     public async Task<ActionResult<BookingResponseDto>> GetById(int id)
     {
@@ -62,9 +66,11 @@ public class BookingController : ControllerBase
 
     //получить все брони по заданому юзер айди
     [HttpGet("byUser/{id}")]
+    [Authorize]
     public async Task<ActionResult<List<BookingDto>>> GetByUserId(int id) => await _bookingService.GetByUserId(id);
     
     [HttpGet("byEvent/{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<BookingResponseDto>> GetByEventId(int id)
     {
         var bookings = await _bookingService.GetByEventId(id);

@@ -15,8 +15,6 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        var username = TempData["Username"] as string;
-        ViewBag.Username = username;
         return View();
     }
 

@@ -29,7 +29,7 @@ namespace EventPlanner.API.Controllers
         }
         
         [HttpGet("by-email/{email}", Name = "GetUserByEmail")]
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<UserResponseDto>> GetByEmailAsync(string email)
         {
             var user = await _userService.GetByEmail(email);

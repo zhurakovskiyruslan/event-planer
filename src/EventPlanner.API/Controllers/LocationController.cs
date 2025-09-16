@@ -8,7 +8,7 @@ namespace EventPlanner.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "AdminOnly")]
+[Authorize]
 
 public class LocationController : ControllerBase
 {
@@ -20,6 +20,7 @@ public class LocationController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<LocationResponseDto>> Create([FromBody] CreateLocationDto dto)
     {
         var location = new Location()
@@ -34,6 +35,7 @@ public class LocationController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<LocationResponseDto>> GetById(int id)
     {
         var loc = await _service.GetByIdAsync(id);
@@ -41,6 +43,7 @@ public class LocationController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult> Update(int id, [FromBody] UpdateLocationDto dto)
     {
         var location = new Location()
@@ -64,6 +67,7 @@ public class LocationController : ControllerBase
     }
 
     [HttpDelete("delete/{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult> Delete(int id)
     {
        await _service.DeleteAsync(id);

@@ -2,6 +2,7 @@ using EventPlanner.API.Contracts;
 using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventPlanner.API.Controllers
@@ -18,6 +19,7 @@ namespace EventPlanner.API.Controllers
         }
         
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<EventResponseDto>> Create([FromBody] CreateEventDto dto)
         {
             var entity = new Event()
@@ -40,6 +42,7 @@ namespace EventPlanner.API.Controllers
         public async Task<ActionResult<List<EventDto>>> GetAll() => await _eventService.GetAllAsync();
         
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult> Delete(int id)
         {
             await _eventService.DeleteAsync(id);
@@ -47,6 +50,7 @@ namespace EventPlanner.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult> Update(int id, [FromBody] UpdateEventDto dto)
         {
             var entity = new Event()

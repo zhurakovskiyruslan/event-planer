@@ -1,5 +1,6 @@
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -17,6 +18,7 @@ public class TicketController : Controller
     }
     
     [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Index([FromQuery] string? q)
     {
         if (q != null)
@@ -27,6 +29,8 @@ public class TicketController : Controller
         return View(await _ticketApi.GetAllAsync());
     }
     
+    [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create()
     {
         await LoadEventsAsync();
@@ -34,6 +38,7 @@ public class TicketController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create(UpsertTicketVm model)
     {
         var result = await _ticketApi.CreateAsync(model);
@@ -54,6 +59,7 @@ public class TicketController : Controller
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Book(int eventId)
     {
         var result = await _ticketApi.GetByEventIdAsync(eventId);
@@ -61,6 +67,7 @@ public class TicketController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id)
     {
         var ticket = await _ticketApi.GetByIdAsync(id);
@@ -77,6 +84,7 @@ public class TicketController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id, UpsertTicketVm model)
     {
         var result = await _ticketApi.UpdateAsync(id, model);
@@ -95,6 +103,7 @@ public class TicketController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Delete(int id)
     {
         await _ticketApi.DeleteAsync(id);

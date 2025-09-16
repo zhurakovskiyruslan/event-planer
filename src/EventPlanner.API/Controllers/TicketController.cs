@@ -10,6 +10,7 @@ namespace EventPlanner.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
 
     public class TicketController : ControllerBase
     {
@@ -28,6 +29,7 @@ namespace EventPlanner.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<List<TicketDto>>> GetAll()
         {
             
@@ -43,6 +45,7 @@ namespace EventPlanner.API.Controllers
         }
 
         [HttpGet("byEvent/{eventId}")]
+        
         public async Task<ActionResult<List<TicketDto>>> GetByEventIdAsync(int eventId)
         {
             try
@@ -57,6 +60,7 @@ namespace EventPlanner.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<TicketResponseDto>> Create([FromBody] CreateTicketDto dto)
         {
             var ticket = new Ticket()
@@ -78,6 +82,7 @@ namespace EventPlanner.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult> Delete(int id)
         {
             await _ticketService.DeleteAsync(id);
@@ -85,6 +90,7 @@ namespace EventPlanner.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult> Update(int id, [FromBody] UpdateTicketDto dto)
         {
             var ticket = new Ticket()
