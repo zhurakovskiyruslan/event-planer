@@ -16,9 +16,11 @@ public class EventService(
     public async Task <Event> CreateAsync(Event entity)
     {
         await eventValidator.ValidateAndThrowAsync(entity);
-        var locationExist = await locationRepository.ExistsAsync(entity.LocationId);
-        if (!locationExist)
+        var location = await locationRepository.GetByIdAsync(entity.LocationId);
+        if (location == null)
             throw new NotFoundException($"location with id {entity.LocationId} not found");
+        if (location.Capacity < entity.Capacity)
+            throw new ConflictException($"The capacity of this location is only {location.Capacity} ");
         await eventRepository.AddAsync(entity);
         return entity;
     }
@@ -39,10 +41,11 @@ public class EventService(
         if (!eventExist)
             throw new NotFoundException($"Event with id {entity.Id} not found");
         await eventValidator.ValidateAndThrowAsync(entity);
-        var locationExist = await locationRepository.ExistsAsync(entity.LocationId);
-        if (!locationExist)
+        var location = await locationRepository.GetByIdAsync(entity.LocationId);
+        if (location == null)
             throw new NotFoundException($"location with id {entity.LocationId} not found");
-
+        if (location.Capacity < entity.Capacity)
+            throw new ConflictException($"The capacity of this location is only {location.Capacity} ");
         await eventRepository.UpdateAsync(entity);
     }
     public async Task DeleteAsync(int id)

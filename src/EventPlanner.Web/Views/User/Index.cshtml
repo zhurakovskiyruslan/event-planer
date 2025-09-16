@@ -9,7 +9,8 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <form asp-action="Index" method="get" class="d-flex gap-2">
-        <input name="q" class="form-control" placeholder="Search by name or email" value="@(Context.Request.Query["q"])" />
+        <input name="q" class="form-control" placeholder="Search by email" 
+               value="@(Context.Request.Query["q"])" />
         <button class="btn btn-outline-secondary">Search</button>
         <a asp-action="Index" class="btn btn-link">Reset</a>
     </form>
@@ -31,7 +32,7 @@ else
                         <th style="width: 80px;">Id</th>
                         <th>Name</th>
                         <th>Email</th>
-                        <th style="width: 220px;" class="text-end">Actions</th>
+                        <th style="width: 160px;" class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,8 +43,7 @@ else
                         <td>@u.Name</td>
                         <td>@u.Email</td>
                         <td class="text-end">
-                            <a asp-action="Details" asp-route-id="@u.Id" class="btn btn-sm btn-outline-secondary">Details</a>
-                            <a asp-action="Edit" asp-route-id="@u.Id" class="btn btn-sm btn-primary ms-1">Edit</a>
+                            <a asp-action="Edit" asp-route-id="@u.Id" class="btn btn-sm btn-primary">Edit</a>
                             <form asp-action="Delete" asp-route-id="@u.Id" method="post" class="d-inline"
                                   onsubmit="return confirm('Delete user @u.Email ?');">
                                 @Html.AntiForgeryToken()

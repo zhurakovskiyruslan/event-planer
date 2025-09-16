@@ -10,7 +10,7 @@ namespace EventPlanner.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+
     public class TicketController : ControllerBase
     {
         private readonly ITicketService _ticketService;
@@ -25,6 +25,21 @@ namespace EventPlanner.API.Controllers
         {
             var ticket = await _ticketService.GetById(id);
             return Ok(new TicketResponseDto(ticket.Id, ticket.Type, ticket.Price, ticket.EventId));
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<TicketDto>>> GetAll()
+        {
+            
+            try
+            {
+                var tickets = await _ticketService.GetAllAsync();
+                return Ok(tickets);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         [HttpGet("byEvent/{eventId}")]
@@ -50,9 +65,16 @@ namespace EventPlanner.API.Controllers
                 Price = dto.Price,
                 EventId = dto.EventId
             };
-            var result = await _ticketService.CreateAsync(ticket);
-            var response = new TicketResponseDto(result.Id, result.Type, result.Price, result.EventId);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
+            try
+            {
+                var result = await _ticketService.CreateAsync(ticket);
+                var response = new TicketResponseDto(result.Id, result.Type, result.Price, result.EventId);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
+            }
+            catch (ConflictException e)
+            {
+                return Conflict(e.Message);
+            }
         }
 
         [HttpDelete("{id}")]
@@ -72,10 +94,18 @@ namespace EventPlanner.API.Controllers
                 Price = dto.Price,
                 EventId = dto.EventId
             };
-            await _ticketService.UpdateAsync(ticket);
-            ticket = await _ticketService.GetById(id);
-            return Ok(new TicketResponseDto(ticket.Id, 
-                ticket.Type, ticket.Price, ticket.EventId));
+            try
+            {
+                await _ticketService.UpdateAsync(ticket);
+                ticket = await _ticketService.GetById(id);
+                return Ok(new TicketResponseDto(ticket.Id,
+                    ticket.Type, ticket.Price, ticket.EventId));
+            }
+            catch (ConflictException e)
+            {
+                return Conflict(e.Message);
+            }
+            
         }
     }
 }

@@ -16,6 +16,7 @@ public class EventController : Controller
     }
     public async Task<IActionResult> Index()
     {
+        
         var items = await _api.GetAllAsync();
         return View(items);
     }
@@ -29,10 +30,17 @@ public class EventController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(UpsertEventVm model)
     {
+        
+        var location = await _location.GetAsync(model.LocationId);
+        if (location!.Capacity < model.Capacity)
+        {
+            ModelState.AddModelError("Capacity", $"Capacity of this location is only {location.Capacity}");
+        }
         if (!ModelState.IsValid){
             await LoadLocationAsync();
             return View(model);
         }
+       
         await _api.CreateAsync(ConvertTimeToUtc(model));
         return RedirectToAction(nameof(Index));
     }
@@ -56,8 +64,12 @@ public class EventController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(int id, UpsertEventVm model)
     {
-        if (!ModelState.IsValid)
+        var location = await _location.GetAsync(model.LocationId);
+        if (location!.Capacity < model.Capacity)
         {
+            ModelState.AddModelError("Capacity", $"Capacity of this location is only {location.Capacity}");
+        }
+        if (!ModelState.IsValid){
             await LoadLocationAsync();
             return View(model);
         }

@@ -7,6 +7,8 @@ public interface ITicketRepository
 {
     Task<bool>ExistsAsync(int id);
     Task<Ticket?> GetByIdAsync(int id);
+    Task<List<TicketDto>> GetAllAsync();
+
     Task<List<TicketDto>> GetByEventIdAsync(int eventId);
     Task AddAsync(Ticket entity);
     Task UpdateAsync(Ticket entity);

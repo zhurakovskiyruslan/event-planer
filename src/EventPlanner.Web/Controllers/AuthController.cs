@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -61,10 +62,27 @@ public class AuthController : Controller
             Secure   = false,              // true если HTTPS
             Expires  = DateTimeOffset.UtcNow.AddHours(1)
         });
-
         return RedirectToAction("Index", "Home");
     }
 
+    [HttpGet]
+    public IActionResult ChangePassword() => View();
+
+    [HttpPost]
+    public async Task<IActionResult> ChangePassword(ChangePasswordVm changePasswordVm)
+    {
+        if (!ModelState.IsValid) return View();
+        var appUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (appUserIdClaim == null) return View();
+        var req = new ChangePasswordReqVm(
+            int.Parse(appUserIdClaim),
+            changePasswordVm.OldPassword,
+            changePasswordVm.NewPassword,
+            changePasswordVm.ConfirmPassword
+        );
+        await _api.ChangePasswordAsync(req);
+        return RedirectToAction("Index", "Home");
+    }
     [HttpPost]
     public IActionResult Logout()
     {

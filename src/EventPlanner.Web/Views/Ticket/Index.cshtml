@@ -1,39 +1,91 @@
-@model EventPlanner.Web.Models.TicketVm
+@model IReadOnlyList<TicketBookVm>
 
 @{
-    ViewData["Title"] = "Find Ticket";
+    ViewData["Title"] = "Tickets";
+    var hasItems = Model != null && Model.Any();
+    var q = (string?)Context.Request.Query["q"];
 }
 
-<h2 class="mb-3">Find Ticket</h2>
+<h2 class="mb-4">Tickets</h2>
 
-<div class="mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <form asp-action="Index" method="get" class="d-flex gap-2">
+        <input name="q" class="form-control" placeholder="Search by Event Id"
+               value="@(q)" />
+        <button class="btn btn-outline-secondary">Search</button>
+        <a asp-action="Index" class="btn btn-link">Reset</a>
+    </form>
+
     <a asp-action="Create" class="btn btn-success">+ Add Ticket</a>
 </div>
 
-<form asp-action="Index" method="get" class="row g-3 mb-4">
-    <div class="col-auto">
-        <input name="id" type="number" class="form-control" placeholder="Ticket Id" required />
-    </div>
-    <div class="col-auto">
-        <button class="btn btn-primary">Search</button>
-        <a asp-controller="Event" asp-action="Index" class="btn btn-link">Back to events</a>
-    </div>
-</form>
-
-@if (Model is not null)
+@if (!hasItems)
 {
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Ticket #@Model.Id</h5>
-            <p class="card-text"><strong>Type:</strong> @Model.Type</p>
-            <p class="card-text"><strong>Price:</strong> @Model.Price.ToString("F2")</p>
-            <p class="card-text"><strong>EventId:</strong> @Model.EventId</p>
+    <div class="alert alert-light border">No tickets to display.</div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="small text-uppercase text-muted">
+                        <th style="width: 80px;">Id</th>
+                        <th style="width: 120px;">Type</th>
+                        <th style="width: 120px;">Price</th>
+                        <th style="width: 100px;">Event Id</th>
+                        <th>Event Title</th>
+                        <th style="width: 220px;">Starts </th>
+                        <th>Location</th>
+                        <th style="width: 160px;" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td>@t.TicketId</td>
 
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">Edit</a>
-            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display:inline">
-                @Html.AntiForgeryToken()
-                <button class="btn btn-sm btn-danger ms-2">Delete</button>
-            </form>
+                        <td>
+                            <span class="badge text-bg-secondary">@t.TicketType</span>
+                        </td>
+
+                        <td>
+                            @t.Price.ToString("0.00")
+                        </td>
+
+                        <td>@t.EventId</td>
+
+                        <td>
+                            <div class="fw-semibold">@t.EventTitle</div>
+                            <div class="text-muted small">@t.EventDescription</div>
+                        </td>
+
+                        <td>
+                            @t.EventStartAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                        </td>
+
+                        <td>
+                            <div>@t.EventLocation</div>
+                            <div class="text-muted small">@t.LocationAddress</div>
+                        </td>
+
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@t.TicketId" class="btn btn-sm btn-primary">Edit</a>
+
+                            <form asp-action="Delete"
+                                  asp-route-id="@t.TicketId"
+                                  method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Delete ticket #@t.TicketId for event &quot;@t.EventTitle&quot;?');">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-danger ms-1">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
         </div>
     </div>
 }

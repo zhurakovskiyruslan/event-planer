@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -21,6 +22,7 @@ public class BookingController : Controller
     }
     
     [HttpGet]
+    
     public async Task<IActionResult> Index(int? id, int? userId, int? eventId, int? ticketId, bool? active)
     {
         await LoadEventAsync();

@@ -25,6 +25,27 @@ public class TicketRepository : ITicketRepository
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
+    public async Task<List<TicketDto>> GetAllAsync()
+    {
+        return await _context.Tickets
+            .Include(t => t.Bookings)
+            .Include(t => t.Event)
+            .ThenInclude(e =>e.Location)
+            .AsNoTracking()
+            .Select(t => new TicketDto(
+                t.Id,
+                t.Type,
+                t.Price,
+                t.EventId,
+                t.Event.Title,
+                t.Event.Description,
+                t.Event.StartAtUtc,
+                t.Event.Location.Name,
+                t.Event.Location.Address
+            ))
+            .ToListAsync();
+            
+    }
     public async Task<List<TicketDto>> GetByEventIdAsync(int eventId)
     {
         return await _context.Tickets

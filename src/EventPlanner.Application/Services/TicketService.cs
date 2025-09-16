@@ -22,22 +22,42 @@ public class TicketService(
         return ticket ?? throw new NotFoundException($"ticket with id {ticketId} not found");
     }
 
+    public async Task<List<TicketDto>> GetAllAsync()
+    {
+        var tickets = await ticketRepository.GetAllAsync();
+        return tickets.Count == 0 ? throw new NotFoundException("tickets not found") : tickets;
+    }
+
     public async Task<List<TicketDto>> GetByEventId(int eventId)
     {
         var tickets = await ticketRepository.GetByEventIdAsync(eventId);
         if(tickets.Count == 0)throw new NotFoundException($"ticket for event {eventId} not found");
         return tickets;
     }
-    
+
     public async Task<Ticket> CreateAsync(Ticket ticket)
     {
         await ticketValidator.ValidateAndThrowAsync(ticket);
         var eventExist = await eventRepository.ExistsAsync(ticket.EventId);
         if (!eventExist)
             throw new NotFoundException("Event not found");
+        try
+        {
+            var duplicates = await GetByEventId(ticket.EventId);
+            if (duplicates.Any(duplicate => duplicate.TicketType == ticket.Type))
+            {
+                throw new ConflictException("Ticket already exists");
+            }
+        }
+        catch (NotFoundException ex)
+        {
+            await ticketRepository.AddAsync(ticket);
+            return ticket;
+        }
         await ticketRepository.AddAsync(ticket);
         return ticket;
-    }
+        
+}
 
     public async Task UpdateAsync(Ticket ticket)
     {
@@ -49,7 +69,21 @@ public class TicketService(
         var eventExist = await eventRepository.ExistsAsync(ticket.EventId);
         if (!eventExist)
             throw new NotFoundException($"Event with id {ticket.EventId} not found");
+        try
+        {
+            var duplicates = await GetByEventId(ticket.EventId);
+            if (duplicates.Any(duplicate => duplicate.TicketType == ticket.Type))
+            {
+                throw new ConflictException("Ticket already exists");
+            }
+        }
+        catch (NotFoundException ex)
+        {
+            await ticketRepository.UpdateAsync(ticket);
+        }
+        
         await ticketRepository.UpdateAsync(ticket);
+        
     }
     
     public async Task DeleteAsync(int ticketId)

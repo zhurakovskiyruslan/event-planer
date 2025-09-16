@@ -9,14 +9,16 @@
 
 <ul class="list-unstyled">
     <li><strong>Date:</strong> @Model.StartAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</li>
-    <li><strong>Capacity:</strong> @Model.Capacity</li>
     <li><strong>Location:</strong> @Model.LocationTitle</li>
+    <li><strong>Available seats:</strong> @Model.AvailableSeats</li>
 </ul>
 
 <div class="mt-3">
     <a asp-action="Index" class="btn btn-secondary">Back to list</a>
     <form asp-controller="Ticket" asp-action="Book" method="get" class="d-inline">
         <input type="hidden" name="eventId" value="@Model.Id" />
-        <button class="btn btn-primary">Book</button>
+        <button class="btn btn-primary" @(Model.AvailableSeats <= 0 ? "disabled" : "")>
+            Book
+        </button>
     </form>
 </div>

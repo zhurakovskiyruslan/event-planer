@@ -38,7 +38,7 @@ namespace EventPlanner.API.Controllers
 
         [HttpGet]
         public async Task<ActionResult<List<EventDto>>> GetAll() => await _eventService.GetAllAsync();
-
+        
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {

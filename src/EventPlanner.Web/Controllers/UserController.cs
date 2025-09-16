@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventPlanner.Web.Controllers;
@@ -14,13 +15,26 @@ public class UserController : Controller
         _userApi = userApi;
     }
     [HttpGet]
-    public async Task<IActionResult> Index()
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Index([FromQuery] string? q)
     {
-        var users = await _userApi.GetAll();
+        IReadOnlyList<UserVm> users;
+        
+        if (string.IsNullOrWhiteSpace(q))
+        {
+            users = await _userApi.GetAll();
+        }
+        else
+        {
+            var user = await _userApi.GetByEmailAsync(q); // возвращает UserVm или null
+            users = user is null ? new List<UserVm>() : new List<UserVm> { user };
+        }
+
         return View(users);
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Profile()
     {
         var appUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -33,9 +47,11 @@ public class UserController : Controller
     }
     
     [HttpGet]
-    public async Task<IActionResult> Create() => View();
+    [Authorize(Policy = "AdminOnly")]
+    public Task<IActionResult> Create() => Task.FromResult<IActionResult>(View());
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create(UpsertUserVm model)
     {
         if (!ModelState.IsValid) return View(model);
@@ -49,6 +65,7 @@ public class UserController : Controller
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Edit(int id)
     {
         var item = await _userApi.GetByIdAsync(id);
@@ -59,6 +76,7 @@ public class UserController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Edit(int id, UpsertUserVm model)
     {
         if (!ModelState.IsValid) return View(model);
@@ -71,6 +89,7 @@ public class UserController : Controller
         return RedirectToAction(nameof(Index));
     }
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Delete(int id)
     {
         await _userApi.DeleteAsync(id);

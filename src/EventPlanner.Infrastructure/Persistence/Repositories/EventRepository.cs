@@ -5,6 +5,7 @@ using EventPlanner.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using EventEntity = EventPlanner.Data.Entities.Event;
 using EventPlanner.Application.ReadModels;
+using EventPlanner.Data.Enums;
 
 namespace EventPlanner.Infrastructure.Persistence.Repositories
 {
@@ -29,7 +30,9 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                     e.Description,
                     e.StartAtUtc,
                     e.Capacity,
-                    e.Location.Name
+                    e.Location.Name, 
+                    e.Capacity - e.Tickets.SelectMany(t => t.Bookings).Count(b => b.Status == BookingStatus.Active)
+
                 ))
                 .FirstOrDefaultAsync();     
 
@@ -42,7 +45,8 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                     e.Description,
                     e.StartAtUtc,
                     e.Capacity,
-                    e.Location.Name
+                    e.Location.Name,
+                    e.Capacity - e.Tickets.SelectMany(t => t.Bookings).Count(b => b.Status == BookingStatus.Active)
                 ))
                 .ToListAsync();
 

@@ -33,7 +33,7 @@ public class UserService(
     public async Task<List<UserDto>> GetAllAsync()
     {
         return await userRepository.GetAllAsync()??
-               throw new NotFoundException($"user list not found");
+               throw new NotFoundException("user list not found");
     }
     
     public async Task UpdateAsync(User user)

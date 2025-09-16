@@ -1,8 +1,9 @@
 @model List<EventPlanner.Web.Models.EventVm>
+
 @{
-ViewData["Title"] = "Events";
-bool isAdmin = User.IsInRole("Admin");
-bool isAuth  = User.Identity?.IsAuthenticated == true;
+    ViewData["Title"] = "Events";
+    bool isAdmin = User.IsInRole("Admin");
+    bool isAuth  = User.Identity?.IsAuthenticated == true;
 }
 
 @if (isAdmin)
@@ -22,6 +23,7 @@ bool isAuth  = User.Identity?.IsAuthenticated == true;
                         <th style="min-width:280px">Description</th>
                         <th style="width:180px">Start</th>
                         <th style="width:120px">Capacity</th>
+                        <th style="width:120px">Available</th>
                         <th style="width:120px">Location</th>
                         <th style="width:200px" class="text-end">Actions</th>
                     </tr>
@@ -46,6 +48,8 @@ bool isAuth  = User.Identity?.IsAuthenticated == true;
 
                             <td>@e.Capacity</td>
 
+                            <td>@e.AvailableSeats</td>
+
                             <td>@e.LocationTitle</td>
 
                             <td class="text-end">
@@ -68,7 +72,7 @@ bool isAuth  = User.Identity?.IsAuthenticated == true;
                 else
                 {
                     <tr>
-                        <td colspan="7" class="text-center text-body-secondary py-4">
+                        <td colspan="8" class="text-center text-body-secondary py-4">
                             No events to display
                         </td>
                     </tr>
@@ -81,57 +85,58 @@ bool isAuth  = User.Identity?.IsAuthenticated == true;
 else
 {
     <h2 class="mb-4">Events</h2>
-<!-- ===== USERS & GUESTS: карточки ===== -->
-@if (!Model.Any())
-{
-<div class="alert alert-light border text-center">No events to display</div>
-}
-else
-{
-<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-    @foreach (var e in Model.OrderBy(x => x.StartAtUtc))
+
+    <!-- ===== USERS & GUESTS: карточки ===== -->
+    @if (!Model.Any())
     {
-    <div class="col">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title mb-2">@e.Title</h5>
-                <p class="text-muted mb-3">@e.Description</p>
-
-                <ul class="list-unstyled small mb-4">
-                    <li><strong>Date:</strong> @e.StartAtUtc.ToLocalTime().ToString("yyyy-MM-dd · HH:mm")</li>
-                    <li><strong>Location Title:</strong> @e.LocationTitle</li>
-                    <li><strong>Capacity:</strong> @e.Capacity</li>
-                </ul>
-
-                <div class="d-flex gap-2">
-                    <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-outline-secondary">
-                        View details
-                    </a>
-
-                    @if (isAuth)
-                    {
-                    <form asp-controller="Ticket" asp-action="Book" method="get" class="d-inline">
-                        <input type="hidden" name="eventId" value="@e.Id" />
-                        <button class="btn btn-primary">Book</button>
-                    </form>
-                    }
-                    else
-                    {
-                    <a asp-controller="Auth" asp-action="Login"
-                       asp-route-returnUrl="@Url.Action("Details","Event", new { id = e.Id })"
-                       class="btn btn-primary">
-                        Book
-                    </a>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
+        <div class="alert alert-light border text-center">No events to display</div>
     }
-</div>
-}
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            @foreach (var e in Model.OrderBy(x => x.StartAtUtc))
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">@e.Title</h5>
+                            <p class="text-muted mb-3">@e.Description</p>
+
+                            <ul class="list-unstyled small mb-4">
+                                <li><strong>Date:</strong> @e.StartAtUtc.ToLocalTime().ToString("yyyy-MM-dd · HH:mm")</li>
+                                <li><strong>Location:</strong> @e.LocationTitle</li>
+                                <li><strong>Available seats:</strong> @e.AvailableSeats</li>
+                            </ul>
+
+                            <div class="d-flex gap-2">
+                                <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-outline-secondary">
+                                    View details
+                                </a>
+
+                                @if (isAuth)
+                                {
+                                    <form asp-controller="Ticket" asp-action="Book" method="get" class="d-inline">
+                                        <input type="hidden" name="eventId" value="@e.Id" />
+                                        <button class="btn btn-primary">Book</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Auth" asp-action="Login"
+                                       asp-route-returnUrl="@Url.Action("Details","Event", new { id = e.Id })"
+                                       class="btn btn-primary">
+                                        Book
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 }
 
-@section Scripts{
-<!-- иконки bootstrap (опционально) -->
+@section Scripts {
+    <!-- иконки bootstrap (опционально) -->
 }

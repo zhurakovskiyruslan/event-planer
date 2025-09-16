@@ -82,9 +82,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
 
-
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
+});
 
 builder.WebHost.UseUrls("http://localhost:5001");
 var app = builder.Build();

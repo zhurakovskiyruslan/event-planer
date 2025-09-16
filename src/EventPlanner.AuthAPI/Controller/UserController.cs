@@ -39,7 +39,7 @@ public class UserController : ControllerBase
         var client = _httpClientFactory.CreateClient("DomainApi");
         var payload = new
         {
-            Name = user.UserName,
+            Name = req.Name,
             Email = req.Email,
             AppUserId = user.Id,
         };
@@ -75,10 +75,28 @@ public class UserController : ControllerBase
         var roles = await _userManager.GetRolesAsync(user);
         var token = _jwt.Issue(user, roles);
 
-        return Ok(new {
+        return Ok(new
+        {
             token,
             expiresAtUtc = DateTime.UtcNow.AddHours(1),
             user = new { id = user.Id, email = user.Email, userName = user.UserName }
         });
     }
+
+    [HttpPost("changePassword")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto req)
+    {
+        var user = await _userManager.FindByIdAsync(req.Id.ToString()); 
+        if(req.NewPassword != req.ConfirmNewPassword) return BadRequest("Passwords don't match");
+        var result = await _userManager.ChangePasswordAsync(user, req.OldPassword, req.NewPassword);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+        var token = _jwt.Issue(user);
+        return Ok(new
+        {
+            token,
+            expiresAtUtc = DateTime.UtcNow.AddHours(1),
+            user = new { id = user.Id, email = user.Email, userName = user.UserName }
+        });
+    }
+        
 }

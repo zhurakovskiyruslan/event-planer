@@ -7,5 +7,6 @@ public record EventVm(
     DateTime StartAtUtc,
     int Capacity,
     int LocationId,
-    string LocationTitle
+    string LocationTitle,
+    int AvailableSeats
     );

@@ -14,5 +14,9 @@ public class AuthApiClient
     public async Task<AuthRespVm?> RegisterAsync(RegisterReqVm registerReq)=> 
         await _http.PostAsJsonAsync("api/user/register", registerReq).Result.Content
             .ReadFromJsonAsync<AuthRespVm>();
-    
+
+    public async Task<AuthRespVm?> ChangePasswordAsync(ChangePasswordReqVm changeReq) =>
+        await _http.PostAsJsonAsync("api/user/changePassword", changeReq).Result.Content
+            .ReadFromJsonAsync<AuthRespVm>();
+
 }

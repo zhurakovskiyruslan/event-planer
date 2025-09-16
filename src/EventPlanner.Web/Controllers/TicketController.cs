@@ -17,12 +17,14 @@ public class TicketController : Controller
     }
     
     [HttpGet]
-    public async Task<IActionResult> Index(int? id)
+    public async Task<IActionResult> Index([FromQuery] string? q)
     {
-        ViewBag.Searched = id.HasValue; // чтобы понимать, искали ли вообще
-        if (!id.HasValue) return View(model: null);
-        var ticket = await _ticketApi.GetByIdAsync(id.Value); // null если не найден
-        return View(ticket); // модель = TicketVm? (может быть null)
+        if (q != null)
+        {
+            int.TryParse(q, out int eventId);
+            return View(await _ticketApi.GetByEventIdAsync(eventId));
+        }
+        return View(await _ticketApi.GetAllAsync());
     }
     
     public async Task<IActionResult> Create()
@@ -30,16 +32,24 @@ public class TicketController : Controller
         await LoadEventsAsync();
         return View();
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Create(UpsertTicketVm model)
     {
+        var result = await _ticketApi.CreateAsync(model);
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Unknown error");
+            await LoadEventsAsync();
+            return View(model);
+        }
+
         if (!ModelState.IsValid)
         {
             await LoadEventsAsync();
             return View(model);
         }
-        await _ticketApi.CreateAsync(model);
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -69,13 +79,18 @@ public class TicketController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(int id, UpsertTicketVm model)
     {
+        var result = await _ticketApi.UpdateAsync(id, model);
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Unknown error");
+        }
         if (!ModelState.IsValid)
         {
             await LoadEventsAsync();
             ViewBag.Id = id;
             return View(model);
         }
-        await _ticketApi.UpdateAsync(id, model);
+        
         return RedirectToAction(nameof(Index));
     }
 
