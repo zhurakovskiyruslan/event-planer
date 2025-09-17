@@ -41,7 +41,7 @@ builder.Services.AddHttpClient<LocationApiClient>(c =>
     .Services.AddHttpClient<AuthApiClient>(c =>
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:AuthApiUrl"]!))
     .AddHttpMessageHandler<BearerFromCookieHandler>();
-
+// убрать 10 хттп клиентов
 builder.Services
     .AddFluentValidationAutoValidation()          // серверная валидация
     .AddFluentValidationClientsideAdapters();     // клиентская (jquery unobtrusive)

@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using EventPlanner.AuthAPI.Contracts;
 using EventPlanner.AuthAPI.Data;
 using EventPlanner.AuthAPI.Models;
 using Microsoft.AspNetCore.Identity;
@@ -16,7 +17,7 @@ public class JwtService
     {
         _config = config;
     }
-    public string Issue(ApplicationUser user, IEnumerable<string>? roles = null)
+    public JwtResult Issue(ApplicationUser user, IEnumerable<string>? roles = null)
     {
         var claims = new List<Claim>
         {
@@ -34,14 +35,18 @@ public class JwtService
         var key   = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        var lifetimeHours = int.Parse(_config["Jwt:LifetimeHours"] ?? "1");
+        var expiresAt = DateTime.UtcNow.AddHours(lifetimeHours);
+        
         var token = new JwtSecurityToken(
             issuer:  _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
             claims:  claims,
-            expires: DateTime.UtcNow.AddHours(int.Parse(_config["Jwt:LifetimeHours"] ?? "60")),
+            expires: expiresAt,
             signingCredentials: creds
         );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        return new JwtResult(tokenString, expiresAt);
     }
 }

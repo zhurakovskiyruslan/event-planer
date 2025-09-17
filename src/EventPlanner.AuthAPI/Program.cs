@@ -18,7 +18,6 @@ builder.Services.AddDbContext<AppIdentityDbContext>(opt =>
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
 {
-    // dev-настройки паролей — по вкусу
     opt.Password.RequireDigit = false;
     opt.Password.RequireUppercase = false;
     opt.Password.RequireNonAlphanumeric = false;
@@ -76,11 +75,15 @@ builder.Services
 
         o.SaveToken = true;
     });
-builder.Services.AddHttpClient("DomainApi", client =>
+builder.Services.Configure<IdentityOptions>(o =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["DomainApi:BaseUrl"]);
-   
+    o.ClaimsIdentity.UserIdClaimType = JwtRegisteredClaimNames.Sub;
 });
+builder.Services.AddHttpClient<DomainApiClient>(c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["DomainApi:BaseUrl"]!);
+});
+
 builder.Services.ConfigureApplicationCookie(opt =>
 {
     // чтобы API отдавал 401/403, а не редиректил

@@ -14,54 +14,40 @@ public class UserController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AppIdentityDbContext _db;
     private readonly JwtService _jwt;
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly DomainApiClient _domainApi;
 
-    public UserController(UserManager<ApplicationUser> userManager, 
-        AppIdentityDbContext db, JwtService jwt,  IHttpClientFactory httpClientFactory)
+    public UserController(UserManager<ApplicationUser> userManager, AppIdentityDbContext db, JwtService jwt,
+        DomainApiClient domainApi)
     {
         _userManager = userManager;
         _db = db;
         _jwt = jwt;
-        _httpClientFactory = httpClientFactory;
+        _domainApi = domainApi;
     }
 
-    [HttpPost("register"), AllowAnonymous]
+    [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterDto req)
     {
-        using var tx = await _db.Database.BeginTransactionAsync();
-
-        var user   = new ApplicationUser { UserName = req.Email, Email = req.Email };
+        var user = new ApplicationUser { UserName = req.Email, Email = req.Email };
         var create = await _userManager.CreateAsync(user, req.Password);
-        if (!create.Succeeded) return BadRequest(create.Errors);
-
-       //создание доменного юзера
-
-        var client = _httpClientFactory.CreateClient("DomainApi");
-        var payload = new
+        if (!create.Succeeded)
         {
-            Name = req.Name,
-            Email = req.Email,
-            AppUserId = user.Id,
-        };
-        
-        var response = await client.PostAsJsonAsync("api/user", payload);
+            return BadRequest();
+        }
+
+        var response = await _domainApi.CreateUserAsync(new CreateDomainUserDto(req.Name, req.Email, user.Id));
         if (!response.IsSuccessStatusCode)
         {
             await _userManager.DeleteAsync(user);
-            return StatusCode((int)response.StatusCode, "Failed to create domain user");
+            return BadRequest();
         }
-       
-        await _db.SaveChangesAsync();
 
-        // роли (если надо)
-        var roles = await _userManager.GetRolesAsync(user);
-
-        var token = _jwt.Issue(user, roles);
-        await tx.CommitAsync();
-
-        return Ok(new {
-            token,
-            expiresAtUtc = DateTime.UtcNow.AddHours(1),
+        var jwt = _jwt.Issue(user);
+        return Ok(new
+        {
+            jwt.Token,
+            expiresAtUtc = jwt.Expires,
             user = new { id = user.Id, email = user.Email, userName = user.UserName }
         });
     }
@@ -73,12 +59,11 @@ public class UserController : ControllerBase
         if (user is null || !await _userManager.CheckPasswordAsync(user, req.Password))
             return Unauthorized(new { error = "Invalid email or password" });
         var roles = await _userManager.GetRolesAsync(user);
-        var token = _jwt.Issue(user, roles);
-
+        var jwt = _jwt.Issue(user, roles);
         return Ok(new
         {
-            token,
-            expiresAtUtc = DateTime.UtcNow.AddHours(1),
+            jwt.Token,
+            expiresAtUtc = jwt.Expires,
             user = new { id = user.Id, email = user.Email, userName = user.UserName }
         });
     }
@@ -87,17 +72,17 @@ public class UserController : ControllerBase
     [Authorize]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto req)
     {
-        var user = await _userManager.FindByIdAsync(req.Id.ToString()); 
-        if(req.NewPassword != req.ConfirmNewPassword) return BadRequest("Passwords don't match");
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+        if (req.NewPassword != req.ConfirmNewPassword) return BadRequest("Passwords don't match");
         var result = await _userManager.ChangePasswordAsync(user, req.OldPassword, req.NewPassword);
         if (!result.Succeeded) return BadRequest(result.Errors);
-        var token = _jwt.Issue(user);
+        var jwt = _jwt.Issue(user);
         return Ok(new
         {
-            token,
-            expiresAtUtc = DateTime.UtcNow.AddHours(1),
+            jwt.Token,
+            expiresAtUtc = jwt.Expires,
             user = new { id = user.Id, email = user.Email, userName = user.UserName }
         });
     }
-        
 }

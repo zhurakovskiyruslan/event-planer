@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using EventPlanner.Data;
 using EventPlanner.Infrastructure;
@@ -7,6 +8,7 @@ using System.Text.Json.Serialization;
 using EventPlanner.API.Middlewares;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +36,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true, IssuerSigningKey = key,
             ValidateLifetime = true, ClockSkew = TimeSpan.Zero
         };
+        o.TokenValidationParameters.NameClaimType = ClaimTypes.Name;
+        o.TokenValidationParameters.RoleClaimType = ClaimTypes.Role;
     });
+builder.Services.Configure<IdentityOptions>(o =>
+{
+    // Указываем, какой клейм считать userId
+    o.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
+});
 
 // Подключаем репозитории через наше расширение
 builder.Services.AddInfrastructure();

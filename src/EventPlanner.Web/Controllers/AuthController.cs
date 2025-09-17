@@ -1,8 +1,9 @@
-using System.Security.Claims;
 using EventPlanner.Web.Models;
 using EventPlanner.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace EventPlanner.Web.Controllers;
 
 public class AuthController : Controller
 {
@@ -74,11 +75,7 @@ public class AuthController : Controller
     [Authorize]
     public async Task<IActionResult> ChangePassword(ChangePasswordVm changePasswordVm)
     {
-        if (!ModelState.IsValid) return View();
-        var appUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (appUserIdClaim == null) return View();
         var req = new ChangePasswordReqVm(
-            int.Parse(appUserIdClaim),
             changePasswordVm.OldPassword,
             changePasswordVm.NewPassword,
             changePasswordVm.ConfirmPassword

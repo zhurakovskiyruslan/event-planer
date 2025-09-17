@@ -21,37 +21,6 @@ public class BookingController : Controller
         _userApi = userApi;
     }
     
-    /*[HttpGet]
-    
-    public async Task<IActionResult> Index(int? id, int? userId, int? eventId, int? ticketId, bool? active)
-    {
-        await LoadEventAsync();
-        ViewBag.HasQuery = id.HasValue || userId.HasValue || eventId.HasValue || ticketId.HasValue || (active ?? false);
-
-        var list = new List<BookingVm>();
-
-        if (id.HasValue)
-        {
-            var one = await _bookingApi.GetByIdAsync(id.Value);
-            if (one != null) list.Add(one);
-        }
-        else if (userId.HasValue && ticketId.HasValue)
-        {
-            var one = await _bookingApi.GetByUserAndTicketAsync(userId.Value, ticketId.Value);
-            if (one != null) list.Add(one);
-        }
-        
-        else if (eventId.HasValue)
-        {
-            list = await _bookingApi.GetByEventIdAsync(eventId.Value);
-        }
-        else if (active == true)
-        {
-            list = await _bookingApi.GetAllActiveBookingsAsync();
-        }
-
-        return View(list);
-    }*/
 
     [HttpGet]
     [Authorize]
@@ -103,12 +72,5 @@ public class BookingController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // [NonAction]
-    // private async Task LoadEventAsync()
-    // {
-    //     var events = await _eventApi.GetAllAsync();
-    //     ViewBag.EventList = events
-    //         .Select(e => new SelectListItem{ Value = e.Id.ToString(), Text = e.Title })
-    //         .ToList();
-    // }
+   
 }

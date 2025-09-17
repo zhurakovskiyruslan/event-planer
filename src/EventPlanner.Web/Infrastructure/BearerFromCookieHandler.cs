@@ -8,7 +8,7 @@ public class BearerFromCookieHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
-        var token = _http.HttpContext?.Request.Cookies["auth"];
+        var token = _http.HttpContext?.Request.Cookies["Auth"];
         if (!string.IsNullOrWhiteSpace(token))
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
