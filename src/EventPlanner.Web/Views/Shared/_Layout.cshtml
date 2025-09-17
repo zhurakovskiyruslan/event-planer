@@ -35,15 +35,22 @@
                     @if (User.IsInRole("Admin"))
                     {
                         <!-- Admin-only -->
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Location" asp-action="Index">Locations</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Ticket" asp-action="Index">Tickets</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="User" asp-action="Index">Users</a>
-                        </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <!-- Admin-only -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Location" asp-action="Index">Locations</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Ticket" asp-action="Index">Tickets</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="User" asp-action="Index">Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Booking" asp-action="Index">Bookings</a>
+                            </li>
+                        }
                     }
                     else if (User.Identity?.IsAuthenticated ?? false)
                     {

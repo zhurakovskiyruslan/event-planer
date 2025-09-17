@@ -7,6 +7,7 @@ public interface IBookingRepository
 {
     Task<bool> ExistsAsync(int id);
     Task<Booking?> GetByIdAsync(int id);
+    Task<List<Booking>> GetAllAsync();
     Task<List<Booking>> GetByUserIdAsync(int userId);
     Task<List<Booking>> GetActiveBookingsAsync();
     Task<List<Booking>> GetByEventIdAsync(int eventId);

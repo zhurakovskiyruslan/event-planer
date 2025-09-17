@@ -14,13 +14,19 @@ public class BookingController : Controller
     private readonly EventApiClient _eventApi;
     private readonly UserApiClient _userApi;
 
-    public BookingController(BookingApiClient bookingApi, EventApiClient eventApi,  UserApiClient userApi)
+    public BookingController(BookingApiClient bookingApi, EventApiClient eventApi, UserApiClient userApi)
     {
         _bookingApi = bookingApi;
         _eventApi = eventApi;
         _userApi = userApi;
     }
-    
+
+    [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Index(bool activeOnly = false)
+    {
+        return activeOnly ? View(await _bookingApi.GetAllActiveBookingsAsync()) : View(await _bookingApi.GetAllAsync());
+    }
 
     [HttpGet]
     [Authorize]

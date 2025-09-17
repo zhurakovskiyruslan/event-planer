@@ -1,170 +1,85 @@
-@model List<EventPlanner.Web.Models.BookingVm>
-
+@model List<MyBookingVm>
 @{
     ViewData["Title"] = "Bookings";
-
-    var eventItems = ViewBag.EventList as List<SelectListItem> ?? new();
-
-    var qId      = Context.Request.Query["id"].FirstOrDefault();
-    var qUserId  = Context.Request.Query["userId"].FirstOrDefault();
-    var qEventId = Context.Request.Query["eventId"].FirstOrDefault();
-    var qTicket  = Context.Request.Query["ticketId"].FirstOrDefault();
-    var qActive  = Context.Request.Query["active"].FirstOrDefault();
-
-    bool hasQuery =
-        !string.IsNullOrWhiteSpace(qId) ||
-        !string.IsNullOrWhiteSpace(qUserId) ||
-        !string.IsNullOrWhiteSpace(qEventId) ||
-        !string.IsNullOrWhiteSpace(qTicket) ||
-        string.Equals(qActive, "true", StringComparison.OrdinalIgnoreCase);
+    bool hasItems = Model != null && Model.Any();
+    var isActiveOnly = Context.Request.Query["activeOnly"] == "true";
 }
-
-<h2 class="mb-3">Bookings</h2>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="text-muted small">
-        @if (!string.IsNullOrWhiteSpace(qEventId)) { <text>Filter: Event = @qEventId</text> }
-        else if (!string.IsNullOrWhiteSpace(qUserId)) { <text>Filter: UserId = @qUserId</text> }
-        else if (!string.IsNullOrWhiteSpace(qId)) { <text>Filter: BookingId = @qId</text> }
-        else if (!string.IsNullOrWhiteSpace(qTicket)) { <text>Filter: UserId = @qUserId, TicketId = @qTicket</text> }
-        else if (string.Equals(qActive, "true", StringComparison.OrdinalIgnoreCase)) { <text>Filter: Active only</text> }
-    </div>
-    <div>
-        <a asp-action="Create" class="btn btn-success">+ Add Booking</a>
-    </div>
+    <h2 class="m-0">Bookings</h2>
+
+    <form asp-action="Index" method="get" class="form-check form-switch m-0">
+        <input class="form-check-input"
+               type="checkbox"
+               id="activeOnlyToggle"
+               name="activeOnly"
+               value="true"
+               @(isActiveOnly ? "checked" : "")
+               onchange="this.form.submit()" />
+        <label class="form-check-label" for="activeOnlyToggle">Active only</label>
+    </form>
 </div>
 
-<div class="row g-3 mb-4">
-    <!-- Search by Booking Id -->
-    <div class="col-12 col-lg-6">
-        <form asp-action="Index" method="get" class="row g-2 align-items-center">
-            <div class="col-8">
-                <input name="id" type="number" min="1" class="form-control" placeholder="Booking Id" value="@qId" />
-            </div>
-            <div class="col-4 d-grid">
-                <button class="btn btn-primary">Search by Id</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Search by UserId -->
-    <div class="col-12 col-lg-6">
-        <form asp-action="Index" method="get" class="row g-2 align-items-center">
-            <div class="col-8">
-                <input name="userId" type="number" min="1" class="form-control" placeholder="User Id" value="@qUserId" />
-            </div>
-            <div class="col-4 d-grid">
-                <button class="btn btn-secondary">Search by User</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Search by Event (dropdown from ViewBag.EventList) -->
-    <div class="col-12 col-lg-6">
-        <form asp-action="Index" method="get" class="row g-2 align-items-center">
-            <div class="col-8">
-                <select name="eventId" class="form-select">
-                    <option value="">-- Select event --</option>
-                    @foreach (var it in eventItems)
-                    {
-                        <option value="@it.Value" selected="@(it.Value == qEventId ? "selected" : null)">@it.Text</option>
-                    }
-                </select>
-            </div>
-            <div class="col-4 d-grid">
-                <button class="btn btn-secondary">Search by Event</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Search by UserId + TicketId -->
-    <div class="col-12 col-lg-6">
-        <form asp-action="Index" method="get" class="row g-2 align-items-center">
-            <div class="col-5">
-                <input name="userId" type="number" min="1" class="form-control" placeholder="User Id" value="@qUserId" />
-            </div>
-            <div class="col-5">
-                <input name="ticketId" type="number" min="1" class="form-control" placeholder="Ticket Id" value="@qTicket" />
-            </div>
-            <div class="col-2 d-grid">
-                <button class="btn btn-secondary">Search U+T</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Show all active -->
-    <div class="col-12">
-        <form asp-action="Index" method="get" class="d-inline">
-            <input type="hidden" name="active" value="true" />
-            <button class="btn btn-outline-primary">Show active</button>
-        </form>
-        @if (hasQuery)
-        {
-            <a asp-action="Index" class="btn btn-link ms-2">Clear</a>
-        }
-    </div>
-</div>
-
-@if (Model != null && Model.Any())
+@if (!hasItems)
 {
-    <table class="table table-striped table-bordered align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Id</th>
-                <th>UserId</th>
-                <th>TicketId</th>
-                <th>Status</th>
-                <th style="width:220px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var b in Model)
-        {
-            <tr>
-                <td>@b.Id</td>
-                <td>@b.UserId</td>
-                <td>@b.TicketId</td>
-                <td>
-                    @if (string.Equals(b.Status, "Active", StringComparison.OrdinalIgnoreCase))
-                    {
-                        <span class="badge bg-success">Active</span>
-                    }
-                    else if (string.Equals(b.Status, "Cancelled", StringComparison.OrdinalIgnoreCase))
-                    {
-                        <span class="badge bg-secondary">Cancelled</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-light text-dark">@b.Status</span>
-                    }
-                </td>
-                <td>
-                    <!-- Cancel (soft) -->
-                    <form asp-action="Cancel" asp-route-id="@b.Id" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <button class="btn btn-sm btn-warning"
-                                title="Cancel booking"
-                                onclick="return confirm('Cancel this booking?');">
-                            Cancel
-                        </button>
-                    </form>
-
-                    <!-- Delete (hard) -->
-                    <form asp-action="Delete" asp-route-id="@b.Id" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <button class="btn btn-sm btn-danger ms-1"
-                                title="Delete booking permanently"
-                                onclick="return confirm('Delete this booking permanently?');">
-                            Delete
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="alert alert-light border">No bookings found.</div>
 }
-else if (hasQuery)
+else
 {
-    <div class="alert alert-warning">No bookings found.</div>
+    
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="text-uppercase small text-body-secondary">
+                        <th style="width:72px">#</th>
+                        <th>Event</th>
+                        <th>Description</th>
+                        <th>Start</th>
+                        <th>Location</th>
+                        <th>Ticket</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th style="width:160px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <td class="text-body-secondary">@b.BookingId</td>
+                        <td class="fw-semibold">@b.EventTitle</td>
+                        <td class="text-muted">@b.EventDescription</td>
+                        <td>@b.EventStartAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <div>@b.LocationName</div>
+                            <div class="small text-muted">@b.LocationAdress</div>
+                        </td>
+                        <td>@b.TicketType</td>
+                        <td>@b.TicketPrice.ToString("C")</td>
+                        <td>
+                            <span class="badge @(b.BookingStatus == "Active" ? "bg-success" : "bg-secondary")">
+                                @b.BookingStatus
+                            </span>
+                        </td>
+                        <td>
+                            @if (b.BookingStatus == "Active")
+                            {
+                                <form asp-action="Cancel" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@b.BookingId" />
+                                    <button type="submit" class="btn btn-sm btn-warning">Cancel</button>
+                                </form>
+                            }
+                            <form asp-action="Delete" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete booking @b.BookingId?');">
+                                <input type="hidden" name="id" value="@b.BookingId" />
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }

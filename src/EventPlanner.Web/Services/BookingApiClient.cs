@@ -16,9 +16,13 @@ public class BookingApiClient
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<BookingVm>();
     }
+    
+    public async Task<List<MyBookingVm>> GetAllAsync() =>
+        await _http.GetFromJsonAsync<List<MyBookingVm>>($"api/Booking/") ?? new();
 
-    public async Task<List<BookingVm>> GetAllActiveBookingsAsync() =>
-        await _http.GetFromJsonAsync<List<BookingVm>>($"api/Booking/allActiveBookings") ?? new();
+
+    public async Task<List<MyBookingVm>> GetAllActiveBookingsAsync() =>
+        await _http.GetFromJsonAsync<List<MyBookingVm>>($"api/Booking/allActiveBookings") ?? new();
     
     public async Task<List<MyBookingVm>> GetByUserIdAsync(int userId)
     {

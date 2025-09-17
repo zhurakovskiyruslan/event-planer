@@ -67,29 +67,23 @@ public class BookingService(
         if(!userExist)
             throw new NotFoundException($"userId {id} not found");
         var bookings = await bookingRepo.GetByUserIdAsync(id);
-        var response = bookings.Select(b => new BookingDto(
-            b.Id,
-            b.Ticket.EventId,
-            b.Ticket.Event.Title,
-            b.Ticket.Event.Description,
-            b.Ticket.Event.StartAtUtc,
-            b.Ticket.Event.Location.Name,
-            b.Ticket.Event.Location.Address,
-            b.Ticket.Type.ToString(),
-            b.Ticket.Price,
-            b.Status.ToString()
-        )).ToList();
-        if(response.Count==0)
+        var result = bookings.Select(MapToDto).ToList();
+        if(result.Count==0)
             throw new NotFoundException($"no bookings found for userId {id}");
-        return response;
+        return result;
     }
 
-    public async Task<List<Booking>> GetActiveBooking()
+    public async Task<List<BookingDto>> GetActiveBooking()
     {
         var bookings = await bookingRepo.GetActiveBookingsAsync();
-        if (!bookings.Any())
-            throw new NotFoundException("No active bookings found");
-        return bookings;
+        return  bookings.Select(MapToDto).ToList();
+    }
+    
+    public async Task<List<BookingDto>> GetAllAsync()
+    {
+        var bookings = await bookingRepo.GetAllAsync();
+        var result = bookings.Select(MapToDto).ToList();
+        return result;
     }
     public async Task<List<Booking>> GetByEventId(int eventId)
     {
@@ -115,4 +109,21 @@ public class BookingService(
             throw new NotFoundException($"no booking found for userId {userId} and ticketId {ticketId}");
         return booking;
     }
+
+    private static BookingDto MapToDto(Booking b)
+    {
+        return new BookingDto(
+            b.Id,
+            b.Ticket.EventId,
+            b.Ticket.Event.Title,
+            b.Ticket.Event.Description,
+            b.Ticket.Event.StartAtUtc,
+            b.Ticket.Event.Location.Name,
+            b.Ticket.Event.Location.Address,
+            b.Ticket.Type.ToString(),
+            b.Ticket.Price,
+            b.Status.ToString()
+        );
+    }
+    
 }

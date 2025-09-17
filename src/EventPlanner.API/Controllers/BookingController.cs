@@ -69,6 +69,10 @@ public class BookingController : ControllerBase
     [Authorize]
     public async Task<ActionResult<List<BookingDto>>> GetByUserId(int id) => await _bookingService.GetByUserId(id);
     
+    [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<List<BookingDto>>> GetAll() => await _bookingService.GetAllAsync();
+    
     [HttpGet("byEvent/{id}")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<BookingResponseDto>> GetByEventId(int id)
@@ -79,12 +83,7 @@ public class BookingController : ControllerBase
     }
     
     [HttpGet("allActiveBookings")]
-    public async Task<ActionResult<BookingResponseDto>> GetActiveBooking()
-    {
-        var bookings = await _bookingService.GetActiveBooking();
-        return Ok(bookings.Select(booking => new BookingResponseDto(booking.Id, 
-            booking.UserId, booking.User.Name, booking.TicketId, booking.Status.ToString())));
-    }
+    public async Task<ActionResult<List<BookingDto>>> GetActiveBooking() => await _bookingService.GetActiveBooking();
     
     [HttpGet("byUserAndTickets/{userId}/{ticketId}")]
     public async Task<ActionResult<BookingResponseDto>> GetByUserAndTickets(int userId, int ticketId)
