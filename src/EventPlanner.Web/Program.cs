@@ -1,9 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using EventPlanner.Web.Infrastructure;
+using EventPlanner.Web;
 using EventPlanner.Web.Models.Validators;
-using EventPlanner.Web.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,28 +19,7 @@ builder.Services
     });
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddTransient<BearerFromCookieHandler>();
-
-// Typed HttpClient для работы с Locations (аналогично потом сделаешь для событий/билетов)
-builder.Services.AddHttpClient<LocationApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!)).
-    AddHttpMessageHandler<BearerFromCookieHandler>()
-    .Services.AddHttpClient<EventApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .AddHttpMessageHandler<BearerFromCookieHandler>()
-    .Services.AddHttpClient<TicketApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .AddHttpMessageHandler<BearerFromCookieHandler>()
-    .Services.AddHttpClient<UserApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .AddHttpMessageHandler<BearerFromCookieHandler>()
-    .Services.AddHttpClient<BookingApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .AddHttpMessageHandler<BearerFromCookieHandler>()
-    .Services.AddHttpClient<AuthApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:AuthApiUrl"]!))
-    .AddHttpMessageHandler<BearerFromCookieHandler>();
-// убрать 10 хттп клиентов
+builder.Services.AddApiClients(builder.Configuration);
 builder.Services
     .AddFluentValidationAutoValidation()          // серверная валидация
     .AddFluentValidationClientsideAdapters();     // клиентская (jquery unobtrusive)
