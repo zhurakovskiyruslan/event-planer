@@ -3,6 +3,7 @@ using EventPlanner.Application.Abstractions.Services;
 using EventPlanner.Application.Common.Exceptions;
 using EventPlanner.Application.ReadModels;
 using EventPlanner.Data.Entities;
+using EventPlanner.Data.Enums;
 using FluentValidation;
 
 namespace EventPlanner.Application.Services;
@@ -27,13 +28,17 @@ public class EventService(
 
     public async Task<EventDto> GetById(int eventId)
     {
-       var entity = await eventRepository.GetByIdAsync(eventId);
-       if (entity is null)
+        var entity = await eventRepository.GetByIdAsync(eventId);
+        if (entity is null)
             throw new NotFoundException($"Event with id {eventId} not found");
-       return entity;
+        return MapToDto(entity);
     }
-    public async Task<List<EventDto>> GetAllAsync() => 
-        await eventRepository.GetAllAsync();
+    public async Task<List<EventDto>> GetAllAsync()
+    {
+        var events = await eventRepository.GetAllAsync();
+        if (!events.Any()) throw new NotFoundException("No events found");
+        return events.Select(MapToDto).ToList();
+    }
     
     public async Task UpdateAsync(Event entity)
     {
@@ -54,5 +59,21 @@ public class EventService(
         if (!eventExist)
             throw new NotFoundException($"Event with id {id} not found");
         await eventRepository.DeleteAsync(id);
+    }
+    
+    private static EventDto MapToDto(Event entity)
+    {
+        var sold = entity.Tickets.SelectMany(t => t.Bookings)
+            .Count(b => b.Status == BookingStatus.Active);
+
+        return new EventDto(
+            entity.Id,
+            entity.Title,
+            entity.Description,
+            entity.StartAtUtc,
+            entity.Capacity,
+            entity.Location.Name,
+            entity.Capacity - sold
+        );
     }
 }

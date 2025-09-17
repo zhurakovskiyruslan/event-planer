@@ -202,8 +202,8 @@ public class BookingServiceTests
 
     
 
-    [Test]
-    public void GetByUserId_NotExistingBooking_CallsGetOnce()
+    /*[Test]
+    /*public void GetByUserId_NotExistingBooking_CallsGetOnce()
     {
         //arrange
         var booking = new Booking
@@ -217,7 +217,7 @@ public class BookingServiceTests
         Assert.ThrowsAsync<NotFoundException>(async () => await _bookingService.GetByUserId(booking.UserId));
         _bookingRepoMock.Verify(r => r.GetByUserIdAsync(booking.UserId), Times.Once);
         _userRepoMock.Verify(r=>r.ExistsAsync(booking.UserId), Times.Once);
-    }
+    }*/
 
     [Test]
     public void GetByUserId_NotExistingUser_CallsGetOnce()

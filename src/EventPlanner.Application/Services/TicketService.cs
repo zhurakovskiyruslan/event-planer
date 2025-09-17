@@ -25,14 +25,13 @@ public class TicketService(
     public async Task<List<TicketDto>> GetAllAsync()
     {
         var tickets = await ticketRepository.GetAllAsync();
-        return tickets.Count == 0 ? throw new NotFoundException("tickets not found") : tickets;
+        return tickets.Select(MapToDto).ToList();
     }
 
     public async Task<List<TicketDto>> GetByEventId(int eventId)
     {
         var tickets = await ticketRepository.GetByEventIdAsync(eventId);
-        if(tickets.Count == 0)throw new NotFoundException($"ticket for event {eventId} not found");
-        return tickets;
+        return tickets.Select(MapToDto).ToList();
     }
 
     public async Task<Ticket> CreateAsync(Ticket ticket)
@@ -93,6 +92,20 @@ public class TicketService(
             throw new NotFoundException($"ticket with id {ticketId} not found");
         await ticketRepository.DeleteAsync(ticketId);
     }
-    
+
+    public static TicketDto MapToDto(Ticket t)
+    {
+        return new TicketDto(
+            t.Id,
+            t.Type,
+            t.Price,
+            t.EventId,
+            t.Event.Title,
+            t.Event.Description,
+            t.Event.StartAtUtc,
+            t.Event.Location.Name,
+            t.Event.Location.Address
+        );
+    }
     
 }

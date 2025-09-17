@@ -40,15 +40,10 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.AppUserId == appUserId);
     }
 
-    public async Task<List<UserDto>> GetAllAsync()
+    public async Task<List<User>> GetAllAsync()
     {
         return await _context.Users
             .AsNoTracking()
-            .Select(u => new UserDto(
-                    u.Id,
-                    u.Name,
-                    u.Email
-                    ))
             .ToListAsync();
     }
 

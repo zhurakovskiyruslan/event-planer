@@ -67,9 +67,21 @@ public class BookingService(
         if(!userExist)
             throw new NotFoundException($"userId {id} not found");
         var bookings = await bookingRepo.GetByUserIdAsync(id);
-        if(bookings.Count==0)
+        var response = bookings.Select(b => new BookingDto(
+            b.Id,
+            b.Ticket.EventId,
+            b.Ticket.Event.Title,
+            b.Ticket.Event.Description,
+            b.Ticket.Event.StartAtUtc,
+            b.Ticket.Event.Location.Name,
+            b.Ticket.Event.Location.Address,
+            b.Ticket.Type.ToString(),
+            b.Ticket.Price,
+            b.Status.ToString()
+        )).ToList();
+        if(response.Count==0)
             throw new NotFoundException($"no bookings found for userId {id}");
-        return bookings;
+        return response;
     }
 
     public async Task<List<Booking>> GetActiveBooking()

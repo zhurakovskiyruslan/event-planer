@@ -9,7 +9,7 @@ public interface IUserRepository
     Task<User?> GetByIdAsync(int id);
     Task<User?> GetByEmailAsync(string email);
     Task<User?> GetByAppUserId(int appUserId);
-    Task<List<UserDto>> GetAllAsync();
+    Task<List<User>> GetAllAsync();
     Task AddAsync(User entity);
     Task UpdateAsync(User entity);
     Task DeleteAsync(int id);

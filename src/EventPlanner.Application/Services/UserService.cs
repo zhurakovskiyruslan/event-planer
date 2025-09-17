@@ -32,8 +32,13 @@ public class UserService(
 
     public async Task<List<UserDto>> GetAllAsync()
     {
-        return await userRepository.GetAllAsync()??
+        var users = await userRepository.GetAllAsync()??
                throw new NotFoundException("user list not found");
+        var result = users.Select(u=> new UserDto(
+            u.Id,
+            u.Name,
+            u.Email)).ToList();
+        return result;
     }
     
     public async Task UpdateAsync(User user)

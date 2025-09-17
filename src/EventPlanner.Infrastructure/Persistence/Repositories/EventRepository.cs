@@ -19,35 +19,20 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
             => await _context.Events.AnyAsync(e => e.Id == id);
 
 
-        public async Task<EventDto?> GetByIdAsync(int id) =>
+        public async Task<Event?> GetByIdAsync(int id) =>
             await _context.Events
                 .AsNoTracking()
+                .Include(e=>e.Location)
                 .Include(e=>e.Tickets)
-                .Where(e => e.Id == id)                 
-                .Select(e => new EventDto(
-                    e.Id,
-                    e.Title,
-                    e.Description,
-                    e.StartAtUtc,
-                    e.Capacity,
-                    e.Location.Name, 
-                    e.Capacity - e.Tickets.SelectMany(t => t.Bookings).Count(b => b.Status == BookingStatus.Active)
+                .ThenInclude(t => t.Bookings)
+        .FirstOrDefaultAsync(e => e.Id == id);
 
-                ))
-                .FirstOrDefaultAsync();     
-
-        public async Task<List<EventDto>> GetAllAsync() =>
+        public async Task<List<Event>> GetAllAsync() =>
             await _context.Events
-                .Include(e => e.Location)
-                .Select(e => new EventDto(
-                    e.Id,
-                    e.Title,
-                    e.Description,
-                    e.StartAtUtc,
-                    e.Capacity,
-                    e.Location.Name,
-                    e.Capacity - e.Tickets.SelectMany(t => t.Bookings).Count(b => b.Status == BookingStatus.Active)
-                ))
+                .AsNoTracking()
+                .Include(e=>e.Location)
+                .Include(e=>e.Tickets)
+                .ThenInclude(t => t.Bookings)
                 .ToListAsync();
 
         public async Task<List<EventEntity>> GetUpcomingEventsAsync() =>
