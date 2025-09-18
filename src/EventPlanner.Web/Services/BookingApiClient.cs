@@ -32,13 +32,13 @@ public class BookingApiClient
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<List<MyBookingVm>>();
     }
-    public async Task<List<BookingVm>> GetByEventIdAsync(int eventId)
+    public async Task<List<MyBookingVm>> GetByEventIdAsync(int eventId)
     {
         var resp = await _http.GetAsync($"api/Booking/byEventId/{eventId}");
         if (resp.StatusCode == HttpStatusCode.NotFound) return null;
         
         resp.EnsureSuccessStatusCode();
-        return await resp.Content.ReadFromJsonAsync<List<BookingVm>>();
+        return await resp.Content.ReadFromJsonAsync<List<MyBookingVm>>();
     }
 
     public async Task<BookingVm?> GetByUserAndTicketAsync(int UserId, int TicketId)

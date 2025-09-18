@@ -75,11 +75,10 @@ public class BookingController : ControllerBase
     
     [HttpGet("byEvent/{id}")]
     [Authorize(Policy = "AdminOnly")]
-    public async Task<ActionResult<BookingResponseDto>> GetByEventId(int id)
+    public async Task<ActionResult<BookingDto>> GetByEventId(int id)
     {
-        var bookings = await _bookingService.GetByEventId(id);
-        return Ok(bookings.Select(booking => new BookingResponseDto(booking.Id, 
-            booking.UserId, booking.User.Name, booking.TicketId, booking.Status.ToString())));
+        
+        return Ok(await _bookingService.GetByEventId(id));
     }
     
     [HttpGet("allActiveBookings")]

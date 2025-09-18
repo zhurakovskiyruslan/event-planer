@@ -85,15 +85,14 @@ public class BookingService(
         var result = bookings.Select(MapToDto).ToList();
         return result;
     }
-    public async Task<List<Booking>> GetByEventId(int eventId)
+    public async Task<List<BookingDto>> GetByEventId(int eventId)
     {
        var eventExist = await eventRepo.ExistsAsync(eventId);
        if (!eventExist)
            throw new NotFoundException($"eventId {eventId} not found");
        var bookings = await bookingRepo.GetByEventIdAsync(eventId);
-       if (bookings.Count == 0)
-           throw new NotFoundException($"no bookings found for eventId {eventId}");
-       return bookings;
+       var result = bookings.Select(MapToDto).ToList();
+       return result;
     }
 
     public async Task<Booking?> GetByUserAndTickets(int userId, int ticketId)
