@@ -7,8 +7,8 @@ public class EventApiClient
     private readonly HttpClient _http;
     public EventApiClient(HttpClient http) => _http = http;
 
-    public async Task<List<EventVm>> GetAllAsync() =>
-        await _http.GetFromJsonAsync<List<EventVm>>("api/event") ?? new ();
+    public async Task<List<EventVm>> GetAllAsync(int page, int size) =>
+        await _http.GetFromJsonAsync<List<EventVm>>($"api/event?page={page}&size={size}") ?? new ();
     
     public async Task<EventVm?> GetAsync(int id) =>
         await _http.GetFromJsonAsync<EventVm>($"api/event/{id}");

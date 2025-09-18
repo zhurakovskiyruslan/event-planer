@@ -33,9 +33,14 @@ public class EventService(
             throw new NotFoundException($"Event with id {eventId} not found");
         return MapToDto(entity);
     }
-    public async Task<List<EventDto>> GetAllAsync()
+    public async Task<List<EventDto>> GetAllAsync(PageInfo pageInfo)
     {
-        var events = await eventRepository.GetAllAsync();
+        int size, page;
+        size = pageInfo.Size;
+        page = pageInfo.Page;
+        if (size < 1) size = 15;
+        if(page < 1) page = 1;
+        var events = await eventRepository.GetAllAsync(page, size);
         if (!events.Any()) throw new NotFoundException("No events found");
         return events.Select(MapToDto).ToList();
     }
@@ -72,6 +77,7 @@ public class EventService(
             entity.Description,
             entity.StartAtUtc,
             entity.Capacity,
+            entity.LocationId,
             entity.Location.Name,
             entity.Capacity - sold
         );

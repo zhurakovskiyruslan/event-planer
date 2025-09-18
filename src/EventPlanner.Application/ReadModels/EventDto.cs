@@ -6,6 +6,7 @@ public record EventDto(
     string Description,
     DateTime StartAtUtc,
     int Capacity,
+    int LocationId,
     string LocationTitle,
     int AvailableSeats
 );

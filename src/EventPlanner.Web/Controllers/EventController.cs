@@ -15,10 +15,10 @@ public class EventController : Controller
         _api = api;
         _location = location;
     }
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page, int size)
     {
         
-        var items = await _api.GetAllAsync();
+        var items = await _api.GetAllAsync(page, size);
         return View(items);
     }
     [HttpGet]

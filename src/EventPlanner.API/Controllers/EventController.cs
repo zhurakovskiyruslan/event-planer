@@ -39,7 +39,11 @@ namespace EventPlanner.API.Controllers
         public async Task<ActionResult<EventDto>> GetById(int id) => await _eventService.GetById(id);
 
         [HttpGet]
-        public async Task<ActionResult<List<EventDto>>> GetAll() => await _eventService.GetAllAsync();
+        public async Task<ActionResult<List<EventDto>>> GetAll([FromQuery] int page, int size)
+        {
+            var pageInfo = new PageInfo(page, size);
+            return await _eventService.GetAllAsync(pageInfo);
+        }
         
         [HttpDelete("{id}")]
         [Authorize(Policy = "AdminOnly")]

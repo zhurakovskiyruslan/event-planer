@@ -27,13 +27,19 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                 .ThenInclude(t => t.Bookings)
         .FirstOrDefaultAsync(e => e.Id == id);
 
-        public async Task<List<Event>> GetAllAsync() =>
-            await _context.Events
-                .AsNoTracking()
-                .Include(e=>e.Location)
-                .Include(e=>e.Tickets)
+        public async Task<List<Event>> GetAllAsync(int page, int pageSize)
+        {
+            var nextPage = await _context.Events
+                .Skip((page-1) * pageSize)
+                .Take(pageSize)
+                .Include(e => e.Location)
+                .Include(e => e.Tickets)
                 .ThenInclude(t => t.Bookings)
+                .AsNoTracking()
                 .ToListAsync();
+            return nextPage;
+        }
+        
 
         public async Task<List<EventEntity>> GetUpcomingEventsAsync() =>
             await _context.Events
