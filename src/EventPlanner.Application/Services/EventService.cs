@@ -35,14 +35,9 @@ public class EventService(
     }
     public async Task<List<EventDto>> GetAllAsync(PageInfo pageInfo)
     {
-        int size, page;
-        size = pageInfo.Size;
-        page = pageInfo.Page;
-        if (size < 1) size = 15;
-        if(page < 1) page = 1;
-        var events = await eventRepository.GetAllAsync(page, size);
-        if (!events.Any()) throw new NotFoundException("No events found");
-        return events.Select(MapToDto).ToList();
+        var events = await eventRepository.GetAllAsync();
+        var result = await PagedList<Event>.CreateAsync(events, pageInfo.Page, pageInfo.Size);
+        return result.Items.Select(MapToDto).ToList();
     }
     
     public async Task UpdateAsync(Event entity)
@@ -70,7 +65,7 @@ public class EventService(
     {
         var sold = entity.Tickets.SelectMany(t => t.Bookings)
             .Count(b => b.Status == BookingStatus.Active);
-
+        
         return new EventDto(
             entity.Id,
             entity.Title,

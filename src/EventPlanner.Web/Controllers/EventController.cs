@@ -17,7 +17,6 @@ public class EventController : Controller
     }
     public async Task<IActionResult> Index(int page, int size)
     {
-        
         var items = await _api.GetAllAsync(page, size);
         return View(items);
     }

@@ -8,7 +8,7 @@ public interface IEventRepository
 {
     Task<bool> ExistsAsync(int id);
     Task<Event?> GetByIdAsync(int id);
-    Task<List<Event>> GetAllAsync(int page, int pageSize);
+    Task<IQueryable<Event>> GetAllAsync();
     Task<List<Event>> GetUpcomingEventsAsync();
     Task AddAsync(Event entity);
     Task UpdateAsync(Event entity);
