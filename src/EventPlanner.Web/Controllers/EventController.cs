@@ -10,16 +10,19 @@ public class EventController : Controller
 {
     private readonly EventApiClient _api;
     private readonly LocationApiClient _location;
-    public EventController(EventApiClient api,  LocationApiClient location)
+
+    public EventController(EventApiClient api, LocationApiClient location)
     {
         _api = api;
         _location = location;
     }
+
     public async Task<IActionResult> Index(int page, int size)
     {
         var items = await _api.GetAllAsync(page, size);
         return View(items);
     }
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create()
@@ -27,25 +30,24 @@ public class EventController : Controller
         await LoadLocationAsync();
         return View();
     }
-    
+
     [HttpPost]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create(UpsertEventVm model)
     {
-        
         var location = await _location.GetAsync(model.LocationId);
         if (location!.Capacity < model.Capacity)
-        {
             ModelState.AddModelError("Capacity", $"Capacity of this location is only {location.Capacity}");
-        }
-        if (!ModelState.IsValid){
+        if (!ModelState.IsValid)
+        {
             await LoadLocationAsync();
             return View(model);
         }
-       
+
         await _api.CreateAsync(ConvertTimeToUtc(model));
         return RedirectToAction(nameof(Index));
     }
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id)
@@ -70,17 +72,17 @@ public class EventController : Controller
     {
         var location = await _location.GetAsync(model.LocationId);
         if (location!.Capacity < model.Capacity)
-        {
             ModelState.AddModelError("Capacity", $"Capacity of this location is only {location.Capacity}");
-        }
-        if (!ModelState.IsValid){
+        if (!ModelState.IsValid)
+        {
             await LoadLocationAsync();
             return View(model);
         }
+
         await _api.UpdateAsync(id, ConvertTimeToUtc(model));
         return RedirectToAction(nameof(Index));
     }
-    
+
     [HttpPost]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Delete(int id)
@@ -114,5 +116,4 @@ public class EventController : Controller
         var renewedEvent = model with { StartAtUtc = startAtUtc };
         return renewedEvent;
     }
-    
 }
