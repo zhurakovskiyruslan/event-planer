@@ -31,10 +31,7 @@ public class UserController : ControllerBase
     {
         var user = new ApplicationUser { UserName = req.Email, Email = req.Email };
         var create = await _userManager.CreateAsync(user, req.Password);
-        if (!create.Succeeded)
-        {
-            return BadRequest();
-        }
+        if (!create.Succeeded) return BadRequest();
 
         var response = await _domainApi.CreateUserAsync(new CreateDomainUserDto(req.Name, req.Email, user.Id));
         if (!response.IsSuccessStatusCode)
@@ -52,7 +49,8 @@ public class UserController : ControllerBase
         });
     }
 
-    [HttpPost("login"), AllowAnonymous]
+    [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginDto req)
     {
         var user = await _userManager.FindByEmailAsync(req.Email);

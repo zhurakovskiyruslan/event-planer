@@ -1,4 +1,5 @@
 // AuthAPI/Data/AppIdentityDbContext.cs
+
 using EventPlanner.AuthAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -10,7 +11,9 @@ public class AppIdentityDbContext
     : IdentityDbContext<ApplicationUser, ApplicationRole, int>
 {
     public AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options)
-        : base(options) { }
+        : base(options)
+    {
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

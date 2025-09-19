@@ -20,10 +20,10 @@ public static class ApiClientsRegistration
             .AddHttpMessageHandler<BearerFromCookieHandler>();
         services.AddHttpClient<BookingApiClient>(c => c.BaseAddress = new Uri(baseUrl))
             .AddHttpMessageHandler<BearerFromCookieHandler>();
-        
+
         services.AddHttpClient<AuthApiClient>(c => c.BaseAddress = new Uri(authUrl))
             .AddHttpMessageHandler<BearerFromCookieHandler>();
-        
+
         return services;
     }
 }

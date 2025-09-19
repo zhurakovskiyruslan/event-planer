@@ -6,112 +6,107 @@ using EventPlanner.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EventPlanner.API.Controllers
+namespace EventPlanner.API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class TicketController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
+    private readonly ITicketService _ticketService;
 
-    public class TicketController : ControllerBase
+    public TicketController(ITicketService ticketService)
     {
-        private readonly ITicketService _ticketService;
+        _ticketService = ticketService;
+    }
 
-        public TicketController(ITicketService ticketService)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<TicketResponseDto>> GetById(int id)
+    {
+        var ticket = await _ticketService.GetById(id);
+        return Ok(new TicketResponseDto(ticket.Id, ticket.Type, ticket.Price, ticket.EventId));
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<List<TicketDto>>> GetAll()
+    {
+        try
         {
-            _ticketService = ticketService;
+            var tickets = await _ticketService.GetAllAsync();
+            return Ok(tickets);
         }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TicketResponseDto>> GetById(int id)
+        catch (NotFoundException e)
         {
-            var ticket = await _ticketService.GetById(id);
-            return Ok(new TicketResponseDto(ticket.Id, ticket.Type, ticket.Price, ticket.EventId));
+            return NotFound(e.Message);
         }
+    }
 
-        [HttpGet]
-        [Authorize(Policy = "AdminOnly")]
-        public async Task<ActionResult<List<TicketDto>>> GetAll()
+    [HttpGet("byEvent/{eventId}")]
+    public async Task<ActionResult<List<TicketDto>>> GetByEventIdAsync(int eventId)
+    {
+        try
         {
-            
-            try
-            {
-                var tickets = await _ticketService.GetAllAsync();
-                return Ok(tickets);
-            }
-            catch (NotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            var result = await _ticketService.GetByEventId(eventId);
+            return Ok(result);
         }
-
-        [HttpGet("byEvent/{eventId}")]
-        
-        public async Task<ActionResult<List<TicketDto>>> GetByEventIdAsync(int eventId)
+        catch (NotFoundException e)
         {
-            try
-            {
-                var result = await _ticketService.GetByEventId(eventId);
-                return Ok(result);
-            }
-            catch (NotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            return NotFound(e.Message);
         }
+    }
 
-        [HttpPost]
-        [Authorize]
-        public async Task<ActionResult<TicketResponseDto>> Create([FromBody] CreateTicketDto dto)
+    [HttpPost]
+    [Authorize]
+    public async Task<ActionResult<TicketResponseDto>> Create([FromBody] CreateTicketDto dto)
+    {
+        var ticket = new Ticket
         {
-            var ticket = new Ticket()
-            {
-                Type = dto.Type,
-                Price = dto.Price,
-                EventId = dto.EventId
-            };
-            try
-            {
-                var result = await _ticketService.CreateAsync(ticket);
-                var response = new TicketResponseDto(result.Id, result.Type, result.Price, result.EventId);
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
-            }
-            catch (ConflictException e)
-            {
-                return Conflict(e.Message);
-            }
+            Type = dto.Type,
+            Price = dto.Price,
+            EventId = dto.EventId
+        };
+        try
+        {
+            var result = await _ticketService.CreateAsync(ticket);
+            var response = new TicketResponseDto(result.Id, result.Type, result.Price, result.EventId);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
         }
-
-        [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
-        public async Task<ActionResult> Delete(int id)
+        catch (ConflictException e)
         {
-            await _ticketService.DeleteAsync(id);
-            return NoContent();
+            return Conflict(e.Message);
         }
+    }
 
-        [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOnly")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateTicketDto dto)
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult> Delete(int id)
+    {
+        await _ticketService.DeleteAsync(id);
+        return NoContent();
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult> Update(int id, [FromBody] UpdateTicketDto dto)
+    {
+        var ticket = new Ticket
         {
-            var ticket = new Ticket()
-            {
-                Id = id,
-                Type = dto.Type,
-                Price = dto.Price,
-                EventId = dto.EventId
-            };
-            try
-            {
-                await _ticketService.UpdateAsync(ticket);
-                ticket = await _ticketService.GetById(id);
-                return Ok(new TicketResponseDto(ticket.Id,
-                    ticket.Type, ticket.Price, ticket.EventId));
-            }
-            catch (ConflictException e)
-            {
-                return Conflict(e.Message);
-            }
-            
+            Id = id,
+            Type = dto.Type,
+            Price = dto.Price,
+            EventId = dto.EventId
+        };
+        try
+        {
+            await _ticketService.UpdateAsync(ticket);
+            ticket = await _ticketService.GetById(id);
+            return Ok(new TicketResponseDto(ticket.Id,
+                ticket.Type, ticket.Price, ticket.EventId));
+        }
+        catch (ConflictException e)
+        {
+            return Conflict(e.Message);
         }
     }
 }

@@ -1,26 +1,31 @@
 using System.Net;
 using EventPlanner.Web.Models;
+
 namespace EventPlanner.Web.Services;
 
 public class UserApiClient
 {
     private readonly HttpClient _http;
-    public UserApiClient(HttpClient http) => _http = http;
-    
-    public async Task<UserVm?>  GetByIdAsync(int id)
+
+    public UserApiClient(HttpClient http)
+    {
+        _http = http;
+    }
+
+    public async Task<UserVm?> GetByIdAsync(int id)
     {
         var resp = await _http.GetAsync($"api/user/{id}");
         if (resp.StatusCode == HttpStatusCode.NotFound) return null;
-        
+
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<UserVm>();
     }
-    
-    public async Task<UserVm?>  GetByEmailAsync(string email)
+
+    public async Task<UserVm?> GetByEmailAsync(string email)
     {
         var resp = await _http.GetAsync($"api/user/by-email/{email}");
         if (resp.StatusCode == HttpStatusCode.NotFound) return null;
-        
+
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<UserVm>();
     }
@@ -29,7 +34,7 @@ public class UserApiClient
     {
         var resp = await _http.GetAsync($"api/user/ByAppUserId/{appUserId}");
         if (resp.StatusCode == HttpStatusCode.NotFound) return null;
-        
+
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<UserVm>();
     }
@@ -38,14 +43,15 @@ public class UserApiClient
     {
         var resp = await _http.GetAsync($"api/user");
         if (resp.StatusCode == HttpStatusCode.NotFound) return null;
-        
+
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<List<UserVm>>();
     }
+
     public async Task<UserVm?> CreateAsync(UpsertUserVm dto)
     {
         var resp = await _http.PostAsJsonAsync("api/user", dto);
-        if(resp.IsSuccessStatusCode)  return await resp.Content.ReadFromJsonAsync<UserVm>();
+        if (resp.IsSuccessStatusCode) return await resp.Content.ReadFromJsonAsync<UserVm>();
         return null;
     }
 
@@ -55,8 +61,9 @@ public class UserApiClient
         if (resp.IsSuccessStatusCode) return await resp.Content.ReadFromJsonAsync<UserVm>();
         return null;
     }
-    
-    public async Task DeleteAsync(int id) =>
-    await _http.DeleteAsync($"api/user/{id}");
 
+    public async Task DeleteAsync(int id)
+    {
+        await _http.DeleteAsync($"api/user/{id}");
+    }
 }

@@ -15,7 +15,6 @@ public class TicketService(
     IValidator<Ticket> ticketValidator)
     : ITicketService
 {
-
     public async Task<Ticket> GetById(int ticketId)
     {
         var ticket = await ticketRepository.GetByIdAsync(ticketId);
@@ -44,23 +43,20 @@ public class TicketService(
         {
             var duplicates = await GetByEventId(ticket.EventId);
             if (duplicates.Any(duplicate => duplicate.TicketType == ticket.Type))
-            {
                 throw new ConflictException("Ticket already exists");
-            }
         }
         catch (NotFoundException ex)
         {
             await ticketRepository.AddAsync(ticket);
             return ticket;
         }
+
         await ticketRepository.AddAsync(ticket);
         return ticket;
-        
-}
+    }
 
     public async Task UpdateAsync(Ticket ticket)
     {
-       
         var ticketExist = await ticketRepository.ExistsAsync(ticket.Id);
         if (!ticketExist)
             throw new NotFoundException($"Ticket with id {ticket.Id} not found");
@@ -72,19 +68,16 @@ public class TicketService(
         {
             var duplicates = await GetByEventId(ticket.EventId);
             if (duplicates.Any(duplicate => duplicate.TicketType == ticket.Type))
-            {
                 throw new ConflictException("Ticket already exists");
-            }
         }
         catch (NotFoundException ex)
         {
             await ticketRepository.UpdateAsync(ticket);
         }
-        
+
         await ticketRepository.UpdateAsync(ticket);
-        
     }
-    
+
     public async Task DeleteAsync(int ticketId)
     {
         var ticketExist = await ticketRepository.ExistsAsync(ticketId);
@@ -107,5 +100,4 @@ public class TicketService(
             t.Event.Location.Address
         );
     }
-    
 }

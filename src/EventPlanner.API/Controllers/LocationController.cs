@@ -9,7 +9,6 @@ namespace EventPlanner.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-
 public class LocationController : ControllerBase
 {
     private readonly ILocationService _service;
@@ -23,7 +22,7 @@ public class LocationController : ControllerBase
     [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<LocationResponseDto>> Create([FromBody] CreateLocationDto dto)
     {
-        var location = new Location()
+        var location = new Location
         {
             Name = dto.Name,
             Address = dto.Address,
@@ -46,7 +45,7 @@ public class LocationController : ControllerBase
     [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult> Update(int id, [FromBody] UpdateLocationDto dto)
     {
-        var location = new Location()
+        var location = new Location
         {
             Id = id,
             Name = dto.Name,
@@ -54,7 +53,7 @@ public class LocationController : ControllerBase
             Capacity = dto.Capacity
         };
         await _service.UpdateAsync(location);
-        var response = new LocationResponseDto(location.Id, location.Name, 
+        var response = new LocationResponseDto(location.Id, location.Name,
             location.Address, location.Capacity);
         return Ok(response);
     }
@@ -70,7 +69,7 @@ public class LocationController : ControllerBase
     [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult> Delete(int id)
     {
-       await _service.DeleteAsync(id);
-       return NoContent();  
+        await _service.DeleteAsync(id);
+        return NoContent();
     }
 }

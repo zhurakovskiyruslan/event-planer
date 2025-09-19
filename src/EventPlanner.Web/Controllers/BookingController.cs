@@ -42,7 +42,10 @@ public class BookingController : Controller
 
     [HttpGet]
     [Authorize]
-    public IActionResult Create() => View();
+    public IActionResult Create()
+    {
+        return View();
+    }
 
     [HttpPost]
     [Authorize]
@@ -77,6 +80,4 @@ public class BookingController : Controller
         await _bookingApi.DeleteAsync(id);
         return RedirectToAction(nameof(Index));
     }
-
-   
 }

@@ -14,19 +14,20 @@ public class UserController : Controller
     {
         _userApi = userApi;
     }
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Index([FromQuery] string? q)
     {
         IReadOnlyList<UserVm> users;
-        
+
         if (string.IsNullOrWhiteSpace(q))
         {
             users = await _userApi.GetAll();
         }
         else
         {
-            var user = await _userApi.GetByEmailAsync(q); // возвращает UserVm или null
+            var user = await _userApi.GetByEmailAsync(q);
             users = user is null ? new List<UserVm>() : new List<UserVm> { user };
         }
 
@@ -45,10 +46,13 @@ public class UserController : Controller
         if (user is null) return NotFound();
         return View(user);
     }
-    
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
-    public Task<IActionResult> Create() => Task.FromResult<IActionResult>(View());
+    public Task<IActionResult> Create()
+    {
+        return Task.FromResult<IActionResult>(View());
+    }
 
     [HttpPost]
     [Authorize(Policy = "AdminOnly")]
@@ -61,22 +65,23 @@ public class UserController : Controller
             ModelState.AddModelError("", "Failed to create User");
             return View();
         }
+
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
-    [Authorize (Policy = "AdminOnly")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id)
     {
         var item = await _userApi.GetByIdAsync(id);
-        if(item is null) return NotFound();
-        var vm = new UpsertUserVm(item.Name,item.Email);
+        if (item is null) return NotFound();
+        var vm = new UpsertUserVm(item.Name, item.Email);
         ViewBag.Id = id;
         return View(vm);
     }
 
     [HttpPost]
-    [Authorize (Policy = "AdminOnly")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id, UpsertUserVm model)
     {
         if (!ModelState.IsValid) return View(model);
@@ -86,8 +91,10 @@ public class UserController : Controller
             ModelState.AddModelError("", "Failed to update User");
             return View();
         }
+
         return RedirectToAction(nameof(Index));
     }
+
     [HttpPost]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Delete(int id)

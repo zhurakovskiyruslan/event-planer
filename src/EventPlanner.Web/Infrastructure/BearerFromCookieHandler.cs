@@ -1,10 +1,13 @@
-
 namespace EventPlanner.Web.Infrastructure;
 
 public class BearerFromCookieHandler : DelegatingHandler
 {
     private readonly IHttpContextAccessor _http;
-    public BearerFromCookieHandler(IHttpContextAccessor http) => _http = http;
+
+    public BearerFromCookieHandler(IHttpContextAccessor http)
+    {
+        _http = http;
+    }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {

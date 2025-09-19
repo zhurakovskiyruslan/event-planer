@@ -12,21 +12,19 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ========== Services ==========
 builder.Services.AddDbContext<AppIdentityDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
-{
-    opt.Password.RequireDigit = false;
-    opt.Password.RequireUppercase = false;
-    opt.Password.RequireNonAlphanumeric = false;
-    opt.Password.RequiredLength = 6;
-})
-.AddEntityFrameworkStores<AppIdentityDbContext>()
-.AddDefaultTokenProviders();
+    {
+        opt.Password.RequireDigit = false;
+        opt.Password.RequireUppercase = false;
+        opt.Password.RequireNonAlphanumeric = false;
+        opt.Password.RequiredLength = 6;
+    })
+    .AddEntityFrameworkStores<AppIdentityDbContext>()
+    .AddDefaultTokenProviders();
 
-// JWT
 var jwt = builder.Configuration.GetSection("Jwt");
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
@@ -52,12 +50,11 @@ builder.Services
 
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
-            
+
             RoleClaimType = ClaimTypes.Role,
             NameClaimType = JwtRegisteredClaimNames.UniqueName
         };
 
-        // читать токен из cookie (ищем и "Auth", и "access_token")
         o.Events = new JwtBearerEvents
         {
             OnMessageReceived = ctx =>
@@ -75,10 +72,7 @@ builder.Services
 
         o.SaveToken = true;
     });
-builder.Services.Configure<IdentityOptions>(o =>
-{
-    o.ClaimsIdentity.UserIdClaimType = JwtRegisteredClaimNames.Sub;
-});
+builder.Services.Configure<IdentityOptions>(o => { o.ClaimsIdentity.UserIdClaimType = JwtRegisteredClaimNames.Sub; });
 builder.Services.AddHttpClient<DomainApiClient>(c =>
 {
     c.BaseAddress = new Uri(builder.Configuration["DomainApi:BaseUrl"]!);
@@ -86,7 +80,6 @@ builder.Services.AddHttpClient<DomainApiClient>(c =>
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
-    // чтобы API отдавал 401/403, а не редиректил
     opt.Events.OnRedirectToLogin = ctx =>
     {
         ctx.Response.StatusCode = 401;
@@ -106,7 +99,6 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger + JWT
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Auth API", Version = "v1" });
@@ -117,32 +109,34 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Вставь токен как есть (без 'Bearer ') либо используй cookie."
+        In = ParameterLocation.Header
     };
 
     c.AddSecurityDefinition("Bearer", scheme);
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecurityScheme { Reference = new OpenApiReference {
-                Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme, Id = "Bearer"
+                }
+            },
             Array.Empty<string>()
         }
     });
 });
 
-// ========== Build ==========
 var app = builder.Build();
 
-// ========== Middleware ==========
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 await IdentitySeeder.SeedAsync(app.Services);
-// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

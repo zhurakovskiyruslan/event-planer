@@ -19,10 +19,10 @@ public static class ExceptionHandlerExtensions
                 {
                     FluentValidation.ValidationException => StatusCodes.Status400BadRequest,
                     ValidationException => StatusCodes.Status400BadRequest,
-                    NotFoundException   => StatusCodes.Status404NotFound,
-                    ConflictException   => StatusCodes.Status409Conflict,
-                    ForbiddenException  => StatusCodes.Status403Forbidden,
-                    _                   => StatusCodes.Status500InternalServerError
+                    NotFoundException => StatusCodes.Status404NotFound,
+                    ConflictException => StatusCodes.Status409Conflict,
+                    ForbiddenException => StatusCodes.Status403Forbidden,
+                    _ => StatusCodes.Status500InternalServerError
                 };
 
                 context.Response.StatusCode = status;

@@ -8,15 +8,18 @@ namespace EventPlanner.Web.Controllers;
 public class AuthController : Controller
 {
     private readonly AuthApiClient _api;
-    
-    public AuthController(AuthApiClient api) => _api = api;
-    
+
+    public AuthController(AuthApiClient api)
+    {
+        _api = api;
+    }
+
     [HttpGet]
     public IActionResult Login()
     {
         return View();
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Login(LoginReqVm loginReq)
     {
@@ -28,24 +31,25 @@ public class AuthController : Controller
             ModelState.AddModelError(string.Empty, "Incorrect login or password");
             return View();
         }
+
         Response.Cookies.Append("auth", result.Token, new CookieOptions
         {
             HttpOnly = true,
             SameSite = SameSiteMode.Lax,
-            Secure   = false,              // true если HTTPS
-            Expires  = DateTimeOffset.UtcNow.AddHours(1)
+            Secure = false,
+            Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
         return RedirectToAction("Index", "Home");
     }
-    
-    
+
+
     [HttpGet]
     public IActionResult Register()
     {
         return View();
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Register(RegisterReqVm registerReq)
     {
@@ -57,19 +61,23 @@ public class AuthController : Controller
             ModelState.AddModelError(string.Empty, "Incorrect login or password");
             return View();
         }
+
         Response.Cookies.Append("auth", result.Token, new CookieOptions
         {
             HttpOnly = true,
             SameSite = SameSiteMode.Lax,
-            Secure   = false,              // true если HTTPS
-            Expires  = DateTimeOffset.UtcNow.AddHours(1)
+            Secure = false,
+            Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
         return RedirectToAction("Index", "Home");
     }
 
     [HttpGet]
     [Authorize]
-    public IActionResult ChangePassword() => View();
+    public IActionResult ChangePassword()
+    {
+        return View();
+    }
 
     [HttpPost]
     [Authorize]
@@ -83,6 +91,7 @@ public class AuthController : Controller
         await _api.ChangePasswordAsync(req);
         return RedirectToAction("Index", "Home");
     }
+
     [HttpPost]
     [Authorize]
     public IActionResult Logout()
@@ -90,6 +99,4 @@ public class AuthController : Controller
         Response.Cookies.Delete("auth", new CookieOptions { Path = "/" });
         return RedirectToAction("Index", "Home");
     }
-    
-    
 }

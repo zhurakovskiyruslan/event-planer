@@ -8,7 +8,12 @@ namespace EventPlanner.Web.Controllers;
 public class LocationController : Controller
 {
     private readonly LocationApiClient _api;
-    public LocationController(LocationApiClient api) => _api = api;
+
+    public LocationController(LocationApiClient api)
+    {
+        _api = api;
+    }
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Index()
@@ -16,9 +21,13 @@ public class LocationController : Controller
         var items = await _api.GetAllAsync();
         return View(items);
     }
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
-    public IActionResult Create() => View();
+    public IActionResult Create()
+    {
+        return View();
+    }
 
     [HttpPost]
     [Authorize(Policy = "AdminOnly")]
@@ -28,6 +37,7 @@ public class LocationController : Controller
         await _api.CreateAsync(model);
         return RedirectToAction(nameof(Index));
     }
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Edit(int id)
@@ -35,7 +45,7 @@ public class LocationController : Controller
         var item = await _api.GetAsync(id);
         if (item is null) return NotFound();
         var vm = new UpsertLocationVm(item.Name, item.Address, item.Capacity);
-        ViewBag.Id = id; // чтобы знать кого апдейтить
+        ViewBag.Id = id;
         return View(vm);
     }
 

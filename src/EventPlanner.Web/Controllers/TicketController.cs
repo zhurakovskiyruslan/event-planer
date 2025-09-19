@@ -16,19 +16,20 @@ public class TicketController : Controller
         _ticketApi = ticketApi;
         _eventApi = eventApi;
     }
-    
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Index([FromQuery] string? q)
     {
         if (q != null)
         {
-            int.TryParse(q, out int eventId);
+            int.TryParse(q, out var eventId);
             return View(await _ticketApi.GetByEventIdAsync(eventId));
         }
+
         return View(await _ticketApi.GetAllAsync());
     }
-    
+
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create()
@@ -71,13 +72,13 @@ public class TicketController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var ticket = await _ticketApi.GetByIdAsync(id);
-        if (ticket is  null) return NotFound();
+        if (ticket is null) return NotFound();
         await LoadEventsAsync();
-        var updatedTicket = new UpsertTicketVm()
+        var updatedTicket = new UpsertTicketVm
         {
             Type = ticket.Type,
             Price = ticket.Price,
-            EventId = ticket.EventId,
+            EventId = ticket.EventId
         };
         ViewBag.Id = id;
         return View(updatedTicket);
@@ -88,17 +89,14 @@ public class TicketController : Controller
     public async Task<IActionResult> Edit(int id, UpsertTicketVm model)
     {
         var result = await _ticketApi.UpdateAsync(id, model);
-        if (!result.Success)
-        {
-            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Unknown error");
-        }
+        if (!result.Success) ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Unknown error");
         if (!ModelState.IsValid)
         {
             await LoadEventsAsync();
             ViewBag.Id = id;
             return View(model);
         }
-        
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -109,15 +107,15 @@ public class TicketController : Controller
         await _ticketApi.DeleteAsync(id);
         return RedirectToAction(nameof(Index));
     }
-    
+
     [NonAction]
     private async Task LoadEventsAsync()
     {
-        var events = await _eventApi.GetAllAsync();
+        var events = await _eventApi.GetAllAsync(1, 15);
         ViewBag.Events = events.Select(e => new SelectListItem
         {
             Value = e.Id.ToString(),
-            Text  = e.Title
+            Text = e.Title
         }).ToList();
     }
 }
