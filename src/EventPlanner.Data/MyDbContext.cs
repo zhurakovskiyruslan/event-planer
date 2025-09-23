@@ -7,11 +7,11 @@ public class MyDbContext : DbContext
 {
     public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
     {
-        
     }
+
     public DbSet<Event> Events { get; set; } = null!;
     public DbSet<Location> Locations { get; set; } = null!;
-    public DbSet<Ticket>  Tickets { get; set; } = null!;
+    public DbSet<Ticket> Tickets { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Booking> Bookings { get; set; } = null!;
 
@@ -21,14 +21,19 @@ public class MyDbContext : DbContext
 
         modelBuilder.Entity<Booking>()
             .Property(b => b.Status)
-            .HasConversion<string>() // enum <-> string ("Active"/"Cancelled")
+            .HasConversion<string>()
             .HasMaxLength(20);
         modelBuilder.Entity<Ticket>()
             .Property(t => t.Type)
-            .HasConversion<string>() // enum <-> string ("Active"/"Cancelled")
+            .HasConversion<string>()
             .HasMaxLength(20);
-        
+        modelBuilder.Entity<User>(e =>
+        {
+            e.ToTable("Users");
+            e.Property(x => x.AppUserId).IsRequired();
+
+
+            e.HasIndex(x => x.AppUserId).IsUnique();
+        });
     }
-    
-   
 }

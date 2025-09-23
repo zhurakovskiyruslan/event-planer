@@ -50,7 +50,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Event", b =>
@@ -84,7 +84,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Location", b =>
@@ -111,7 +111,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.Ticket", b =>
@@ -140,7 +140,7 @@ namespace EventPlaner.Data.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("EventPlanner.Data.Entities.User", b =>
@@ -150,6 +150,9 @@ namespace EventPlaner.Data.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppUserId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -163,6 +166,9 @@ namespace EventPlaner.Data.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppUserId")
+                        .IsUnique();
 
                     b.ToTable("Users", (string)null);
                 });

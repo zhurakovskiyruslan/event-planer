@@ -1,44 +1,82 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using EventPlanner.Web;
 using EventPlanner.Web.Models.Validators;
-using EventPlanner.Web.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services
+    .AddControllersWithViews(options =>
+    {
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    });
+builder.Services.AddHttpContextAccessor();
 
-// Typed HttpClient для работы с Locations (аналогично потом сделаешь для событий/билетов)
-builder.Services.AddHttpClient<LocationApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .Services.AddHttpClient<EventApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .Services.AddHttpClient<TicketApiClient>(c =>
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .Services.AddHttpClient<UserApiClient>(c => 
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
-    .Services.AddHttpClient<BookingApiClient>(c => 
-        c.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!));
-
+builder.Services.AddApiClients(builder.Configuration);
+builder.Services
+    .AddFluentValidationAutoValidation()
+    .AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<UpsertEventVmValidator>();
-builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(o =>
+    {
+        var jwt = builder.Configuration.GetSection("Jwt");
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true, ValidIssuer = jwt["Issuer"],
+            ValidateAudience = true, ValidAudience = jwt["Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+
+            RoleClaimType = ClaimTypes.Role,
+            NameClaimType = JwtRegisteredClaimNames.UniqueName
+        };
+
+        o.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = ctx =>
+            {
+                if (ctx.Request.Cookies.TryGetValue("Auth", out var token) && !string.IsNullOrWhiteSpace(token))
+                    ctx.Token = token;
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+
+builder.Services.AddAuthorization(opt => { opt.AddPolicy("AdminOnly", p => p.RequireRole("Admin")); });
+
 builder.WebHost.UseUrls("http://localhost:5001");
 var app = builder.Build();
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
+if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Auth}/{action=Login}/{id?}");
+    "default",
+    "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();

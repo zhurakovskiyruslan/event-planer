@@ -1,8 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using EventPlanner.Application.Abstractions.Repositories;
 using EventPlanner.Data;
+using EventPlanner.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using EventEntity = EventPlanner.Data.Entities.Event;
+using EventPlanner.Application.ReadModels;
+using EventPlanner.Data.Enums;
 
 namespace EventPlanner.Infrastructure.Persistence.Repositories
 {
@@ -16,17 +19,24 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
             => await _context.Events.AnyAsync(e => e.Id == id);
 
 
-        public async Task<EventEntity?> GetByIdAsync(int id) =>
+        public async Task<Event?> GetByIdAsync(int id) =>
             await _context.Events
-                .Include(e => e.Location)
-                .Include(e => e.Tickets)
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .AsNoTracking()
+                .Include(e=>e.Location)
+                .Include(e=>e.Tickets)
+                .ThenInclude(t => t.Bookings)
+        .FirstOrDefaultAsync(e => e.Id == id);
 
-        public async Task<List<EventEntity>> GetAllAsync() =>
-            await _context.Events
+        public async Task<IQueryable<Event>> GetAllAsync() =>
+       
+             _context.Events
                 .Include(e => e.Location)
                 .Include(e => e.Tickets)
-                .ToListAsync();
+                .ThenInclude(t => t.Bookings)
+                .AsNoTracking();
+
+        
+        
 
         public async Task<List<EventEntity>> GetUpcomingEventsAsync() =>
             await _context.Events
@@ -50,7 +60,7 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                 entityToUpdate.Description = entity.Description;
                 entityToUpdate.StartAtUtc = entity.StartAtUtc;
                 entityToUpdate.Capacity = entity.Capacity;
-                entityToUpdate.Location = entity.Location;
+                entityToUpdate.LocationId = entity.LocationId;
                 _context.Events.Update(entityToUpdate);
                 await _context.SaveChangesAsync();
             }

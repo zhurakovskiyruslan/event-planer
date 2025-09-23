@@ -1,5 +1,3 @@
-
-
 using EventPlanner.Data.Enums;
 
 namespace EventPlanner.API.Contracts;

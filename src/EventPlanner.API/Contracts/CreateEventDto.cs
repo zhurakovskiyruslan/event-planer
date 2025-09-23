@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace EventPlanner.API.Contracts;
 
 public record CreateEventDto

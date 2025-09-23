@@ -35,6 +35,14 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
                 .Where(b => b.UserId == userId)
                 .ToListAsync();
 
+        public async Task<List<Booking>> GetAllAsync() =>
+            await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Ticket)
+                    .ThenInclude(t => t.Event)
+                        .ThenInclude(e => e.Location)
+                .ToListAsync();
+        
         public async Task<List<Booking>> GetByEventIdAsync(int eventId) =>
             await _context.Bookings
                 .Include(b => b.User)
@@ -45,10 +53,11 @@ namespace EventPlanner.Infrastructure.Persistence.Repositories
 
         public async Task<List<Booking>> GetActiveBookingsAsync() =>
             await _context.Bookings
+                .Where(b => b.Status == BookingStatus.Active)
                 .Include(b => b.User)
                 .Include(b => b.Ticket)
-                    .ThenInclude(t => t.Event)
-                .Where(b => b.Status == BookingStatus.Active)
+                .ThenInclude(t => t.Event)
+                .ThenInclude(e => e.Location)
                 .ToListAsync();
 
         public Task<Booking?> GetByUserAndTicketAsync(int userId, int ticketId)
