@@ -1,0 +1,53 @@
+@using EventPlanner.Web.Controllers
+@using EventPlanner.Web.Services
+@model EventPlanner.Web.Models.UpsertEventVm
+@{
+    ViewData["Title"] = "Update Event";
+}
+
+<h2 class="mb-4">Update Event</h2>
+
+<form asp-action="Edit" method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-6">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="StartAtUtc" class="form-label"></label>
+        <input asp-for="StartAtUtc" type="datetime-local" class="form-control" />
+        <span asp-validation-for="StartAtUtc" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="Capacity" class="form-label"></label>
+        <input asp-for="Capacity" class="form-control" />
+        <span asp-validation-for="Capacity" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LocationId" class="form-label"></label>
+        <select asp-for="LocationId"
+                asp-items="@(ViewBag.LocationList as List<SelectListItem>)"
+                class="form-select">
+            <option value="">-- select location --</option>
+        </select>
+        <span asp-validation-for="LocationId" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button class="btn btn-success">Save</button>
+        <a asp-action="Index" class="btn btn-link">Cancel</a>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

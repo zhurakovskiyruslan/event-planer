@@ -1,0 +1,75 @@
+@model IReadOnlyList<EventPlanner.Web.Models.MyBookingVm>
+
+@{
+    ViewData["Title"] = "My Bookings";
+    var hasItems = Model != null && Model.Any();
+    string StatusPill(string s) =>
+        s?.Equals("Active", StringComparison.OrdinalIgnoreCase) == true
+            ? "bg-success-subtle text-success-emphasis border border-success-subtle"
+            : "bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle";
+}
+
+<h1 class="display-5 fw-semibold mb-4">My Bookings</h1>
+
+@if (!hasItems)
+{
+    <div class="text-center py-5">
+        <p class="text-muted mb-4">You don’t have any bookings yet.</p>
+        <a asp-controller="Event" asp-action="Index" class="btn btn-primary">Browse events</a>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="small text-uppercase text-muted">
+                        <th>Event</th>
+                        <th>Start date</th>
+                        <th>Location</th>
+                        <th>Address</th>
+                        <th>Ticket</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-controller="Event" asp-action="Details" asp-route-id="@b.EventId"
+                               class="fw-medium link-body-emphasis text-decoration-none">@b.EventTitle</a>
+                            <div class="text-muted small">@b.EventDescription</div>
+                        </td>
+                        <td>@b.EventStartAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
+                        <td>@b.LocationName</td>
+                        <td class="text-muted">@b.LocationAdress</td>
+                        <td>@b.TicketType</td>
+                        <td class="text-end">@b.TicketPrice.ToString("N2")</td>
+                        <td class="text-center">
+                            <span class="badge rounded-pill px-3 py-2 @StatusPill(b.BookingStatus)">
+                                @b.BookingStatus
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            @if (b.BookingStatus.Equals("Active", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <form asp-controller="Booking" asp-action="Cancel" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@b.BookingId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                        Cancel
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

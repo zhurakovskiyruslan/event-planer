@@ -1,0 +1,53 @@
+@model EventPlanner.Web.Models.UpsertTicketVm
+
+@{
+    ViewData["Title"] = "Edit Ticket";
+    var ticketId = (int)ViewBag.Id; // Id приходит через ViewBag
+}
+
+<h2 class="mb-4">Edit Ticket</h2>
+
+<form asp-action="Edit" asp-route-id="@ticketId" method="post" class="row g-3">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-4">
+        <label class="form-label">Ticket #@ticketId</label>
+        <input value="@ticketId" class="form-control" disabled />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Type" class="form-label"></label>
+        <select asp-for="Type" class="form-select">
+            <option value="">-- Select type --</option>
+            <option value="Standard" selected="@(Model.Type == "Standard")">Standard</option>
+            <option value="VIP" selected="@(Model.Type == "VIP")">VIP</option>
+        </select>
+        <span asp-validation-for="Type" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Price" class="form-label"></label>
+        <input asp-for="Price" type="number" step="0.01" min="0.01" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="EventId" class="form-label"></label>
+        <select asp-for="EventId"
+                asp-items="@(ViewBag.Events as List<SelectListItem>)"
+                class="form-select">
+            <option value="">-- Select event --</option>
+        </select>
+        <span asp-validation-for="EventId" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-link">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

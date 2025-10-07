@@ -1,0 +1,171 @@
+@model List<EventPlanner.Web.Models.EventVm>
+
+@{
+    ViewData["Title"] = "Events";
+    bool isAdmin = User.IsInRole("Admin");
+    bool isAuth  = User.Identity?.IsAuthenticated == true;
+
+    var qs = Context.Request.Query;
+    int page = int.TryParse(qs["page"], out var p) && p > 0 ? p : 1;
+    int size = int.TryParse(qs["size"], out var s) && s > 0 ? s : (isAdmin ? 30 : 15);
+
+    var hasItems = Model != null && Model.Count > 0;
+    bool hasPrev = page > 1;
+    bool hasNext = Model != null && Model.Count == size; // без total
+}
+
+@if (isAdmin)
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Events</h2>
+
+        <div class="d-flex align-items-center gap-2">
+            <!-- Page size (admin: 30/50/100) -->
+            <form asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+                <label class="small text-muted">Page size</label>
+                <select name="size" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="30" selected="@(size == 30)">30</option>
+                    <option value="50" selected="@(size == 50)">50</option>
+                    <option value="100" selected="@(size == 100)">100</option>
+                </select>
+                <input type="hidden" name="page" value="1" />
+            </form>
+
+            <a asp-action="Create" class="btn btn-primary btn-sm">+ Add New Event</a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="text-uppercase small text-body-secondary">
+                        <th style="width:72px">id</th>
+                        <th>Title</th>
+                        <th style="min-width:280px">Description</th>
+                        <th style="width:180px">Start</th>
+                        <th style="width:120px">Capacity</th>
+                        <th style="width:120px">Available</th>
+                        <th style="width:120px">Location</th>
+                        <th style="width:200px" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (hasItems)
+                {
+                    foreach (var e in Model)
+                    {
+                        <tr>
+                            <td class="text-body-secondary">@e.Id</td>
+                            <td class="fw-semibold">@e.Title</td>
+                            <td class="text-body-secondary">
+                                <span class="d-inline-block text-truncate" style="max-width: 460px;">
+                                    @e.Description
+                                </span>
+                            </td>
+                            <td>@e.StartAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@e.Capacity</td>
+                            <td>@e.AvailableSeats</td>
+                            <td>@e.LocationTitle</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-outline-secondary">Details</a>
+                                    <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-outline-primary">Edit</a>
+                                    <form asp-action="Delete" asp-route-id="@e.Id" method="post"
+                                          onsubmit="return confirm('Delete this event?');" class="d-inline">
+                                        <button class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-body-secondary py-4">No events to display</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Events</h2>
+
+        <div class="d-flex align-items-center gap-2">
+            <!-- Page size (user: 15/30) -->
+            <form asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+                <label class="small text-muted">Page size</label>
+                <select name="size" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="15" selected="@(size == 15)">15</option>
+                    <option value="30" selected="@(size == 30)">30</option>
+                </select>
+                <input type="hidden" name="page" value="1" />
+            </form>
+
+        </div>
+    </div>
+
+    @if (!hasItems)
+    {
+        <div class="alert alert-light border text-center">No events to display</div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            @foreach (var e in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">@e.Title</h5>
+                            <p class="text-muted mb-3">@e.Description</p>
+                            <ul class="list-unstyled small mb-4">
+                                <li><strong>Date:</strong> @e.StartAtUtc.ToLocalTime().ToString("yyyy-MM-dd · HH:mm")</li>
+                                <li><strong>Location:</strong> @e.LocationTitle</li>
+                                <li><strong>Available seats:</strong> @e.AvailableSeats</li>
+                            </ul>
+                            <div class="d-flex gap-2">
+                                <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-outline-secondary">View details</a>
+                                @if (isAuth)
+                                {
+                                    <form asp-controller="Ticket" asp-action="Book" method="get" class="d-inline">
+                                        <input type="hidden" name="eventId" value="@e.Id" />
+                                        <button class="btn btn-primary">Book</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Auth" asp-action="Login"
+                                       asp-route-returnUrl="@Url.Action("Details","Event", new { id = e.Id })"
+                                       class="btn btn-primary">
+                                        Book
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="d-flex justify-content-center mt-3">
+            <form asp-action="Index" method="get" class="m-0">
+                <input type="hidden" name="size" value="@size" />
+                <input type="hidden" name="page" value="@(page - 1)" />
+                <button class="btn btn-outline-secondary" @(hasPrev ? null : "disabled")>◀ Prev</button>
+            </form>
+            
+            <form asp-action="Index" method="get" class="m-0">
+                <input type="hidden" name="size" value="@size" />
+                <input type="hidden" name="page" value="@(page + 1)" />
+                <button class="btn btn-outline-primary" @(hasNext ? null : "disabled")>Next ▶</button>
+            </form>
+            
+        </div>
+    }
+}

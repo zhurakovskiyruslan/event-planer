@@ -1,0 +1,85 @@
+@model List<MyBookingVm>
+@{
+    ViewData["Title"] = "Bookings";
+    bool hasItems = Model != null && Model.Any();
+    var isActiveOnly = Context.Request.Query["activeOnly"] == "true";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="m-0">Bookings</h2>
+
+    <form asp-action="Index" method="get" class="form-check form-switch m-0">
+        <input class="form-check-input"
+               type="checkbox"
+               id="activeOnlyToggle"
+               name="activeOnly"
+               value="true"
+               @(isActiveOnly ? "checked" : "")
+               onchange="this.form.submit()" />
+        <label class="form-check-label" for="activeOnlyToggle">Active only</label>
+    </form>
+</div>
+
+@if (!hasItems)
+{
+    <div class="alert alert-light border">No bookings found.</div>
+}
+else
+{
+    
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="text-uppercase small text-body-secondary">
+                        <th style="width:72px">#</th>
+                        <th>Event</th>
+                        <th>Description</th>
+                        <th>Start</th>
+                        <th>Location</th>
+                        <th>Ticket</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th style="width:160px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <td class="text-body-secondary">@b.BookingId</td>
+                        <td class="fw-semibold">@b.EventTitle</td>
+                        <td class="text-muted">@b.EventDescription</td>
+                        <td>@b.EventStartAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <div>@b.LocationName</div>
+                            <div class="small text-muted">@b.LocationAdress</div>
+                        </td>
+                        <td>@b.TicketType</td>
+                        <td>@b.TicketPrice.ToString("C")</td>
+                        <td>
+                            <span class="badge @(b.BookingStatus == "Active" ? "bg-success" : "bg-secondary")">
+                                @b.BookingStatus
+                            </span>
+                        </td>
+                        <td>
+                            @if (b.BookingStatus == "Active")
+                            {
+                                <form asp-action="Cancel" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@b.BookingId" />
+                                    <button type="submit" class="btn btn-sm btn-warning">Cancel</button>
+                                </form>
+                            }
+                            <form asp-action="Delete" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete booking @b.BookingId?');">
+                                <input type="hidden" name="id" value="@b.BookingId" />
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

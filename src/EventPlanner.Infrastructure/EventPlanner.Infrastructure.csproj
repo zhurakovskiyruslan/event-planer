@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventPlanner.Application\EventPlanner.Application.csproj" />
+      <ProjectReference Include="..\EventPlanner.Data\EventPlanner.Data.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Bogus" Version="35.6.3" />
+      <PackageReference Include="StackExchange.Redis" Version="2.9.17" />
+    </ItemGroup>
+
+</Project>
